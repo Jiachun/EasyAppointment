@@ -13,4 +13,8 @@ class Config:
     # 禁用 SQLAlchemy 对象跟踪修改功能（可选，推荐关闭以节省内存）
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+class DevelopmentConfig(Config):
     DEBUG = True
+
+class ProductionConfig(Config):
+    DEBUG = False
