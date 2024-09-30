@@ -26,7 +26,6 @@ class User(db.Model):
     id_type = Column(String(50), nullable=True)  # 证件类型
     id_number = Column(String(100), unique=True, nullable=True)  # 证件号码
     phone_number = Column(String(20), unique=True, nullable=False)  # 手机号码
-    email = Column(String(120), unique=True, nullable=True)  #邮箱
     is_active = Column(Boolean, default=True)  # 是否激活
     is_staff = Column(Boolean, default=False)  # 是否工作人员
 
@@ -35,6 +34,9 @@ class User(db.Model):
 
     # 用户可以拥有多个部门
     departments = relationship('Department', secondary=user_department, back_populates='users')
+
+    # 关联访客
+    visitors = relationship("Visitor", back_populates="user")
 
     def __repr__(self):
         return f'<User {self.username}>'
