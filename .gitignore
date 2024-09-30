@@ -1,2 +1,3 @@
 # Ignore .env file for security
 .env
+.idea
