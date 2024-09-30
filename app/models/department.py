@@ -7,7 +7,7 @@
 # 描述: 部门模型文件。
 """
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from extensions.db import db
 from app.models import user_department
@@ -20,7 +20,7 @@ class Department(db.Model):
     code = Column(db.String(50), nullable=False, unique=True)  # 部门编号，唯一
     name = Column(String(100), nullable=False)  # 部门名称
     description = Column(String(255), nullable=True)  # 部门描述（可选）
-    parent_id = Column(Integer, db.ForeignKey('departments.id'), nullable=True)  # 上级部门ID
+    parent_id = Column(Integer, ForeignKey('departments.id'), nullable=True)  # 上级部门ID
 
     # 部门可以关联多个用户
     users = relationship('User', secondary=user_department, back_populates='departments')
