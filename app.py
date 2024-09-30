@@ -2,7 +2,6 @@ from flask import Flask
 from config import DevelopmentConfig
 from extensions.db import init_db
 
-
 def create_app():
     app = Flask(__name__)
 
@@ -16,5 +15,5 @@ def create_app():
 
 
 if __name__ == '__main__':
-    app = create_app()
-    app.run()
+    easy_appointment = create_app()
+    easy_appointment.run()

@@ -16,7 +16,7 @@ from models import user_department
 class Department(db.Model):
     __tablename__ = 'departments'
 
-    id = Column(Integer, primary_key=True)  # 部门ID
+    id = Column(Integer, primary_key=True, autoincrement=True)  # 部门ID
     code = Column(db.String(50), nullable=False, unique=True)  # 部门编号，唯一
     name = Column(String(100), nullable=False)  # 部门名称
     description = Column(String(255), nullable=True)  # 部门描述（可选）
