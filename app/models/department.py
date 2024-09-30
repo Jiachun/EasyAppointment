@@ -10,7 +10,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from extensions.db import db
-from models import user_department
+from app.models import user_department
 
 
 class Department(db.Model):

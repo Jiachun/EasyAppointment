@@ -1,6 +1,7 @@
 import click
 from app import create_app
 from extensions.db import db
+from app.models import User, Role, Permission, Department, user_role, user_department, role_permission
 
 app = create_app()
 
