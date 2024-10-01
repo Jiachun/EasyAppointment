@@ -7,7 +7,7 @@
 # 描述: 访客记录模型文件。
 """
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from datetime import datetime
 from extensions.db import db
 
@@ -17,11 +17,23 @@ class VisitorLog(db.Model):
     __tablename__ = 'visitor_logs'
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 访客记录ID
-    visit_time = Column(DateTime, nullable=False, default=datetime.now())  # 来访时间
-    leave_time = Column(DateTime, nullable=False, default=datetime.now())  # 离校时间
+    visit_time = Column(DateTime, nullable=False)  # 来访时间
+    entry_time = Column(DateTime, nullable=True)  # 进校时间
+    leave_time = Column(DateTime, nullable=False)  # 离校时间
+    campus = Column(String(100), nullable=False)  # 校区
+    visit_type = Column(String(50), nullable=False)  # 来访类型
+    visitor_org = Column(String(100), nullable=True)  # 访客所属单位
+    accompanying_people = Column(db.String(255), nullable=True)  # 随行人员ID（逗号分隔）
+    visited_person_name = Column(String(100), nullable=True)  # 被访人姓名
+    visited_person_org = Column(String(100), nullable=True)  # 被访人单位
     reason = Column(String(255), nullable=True)  # 访问原因
+    license_plate = Column(String(20), nullable=True)  # 车牌号码
+    approver = Column(String(100), nullable=True)  # 审批人
+    approval_time = Column(DateTime, nullable=True)  # 审批时间
+    is_approved = Column(Boolean, nullable=True)  # 是否审批通过
     is_deleted = Column(Boolean, default=False)  # 是否删除
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=True)  # 上一级用户ID
+    created_at = Column(DateTime, default=datetime.now())  # 记录创建时间
+    updated_at = Column(DateTime, default=datetime.now(), onupdate=datetime.now())  # 记录更新时间
 
     def __repr__(self):
-        return f'<Visitor {self.name}>'
+        return f'<VisitorLog {self.id}>'
