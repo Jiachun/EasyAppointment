@@ -42,6 +42,19 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'gender': self.gender,
+            'id_type': self.id_type,
+            'id_number': self.id_number,
+            'phone_number': self.phone_number,
+            'is_staff': self.is_staff,
+        }
+
     def can(self, permission_name):
         """检查用户是否具有某个权限"""
         # 遍历用户的所有角色

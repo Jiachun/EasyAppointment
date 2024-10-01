@@ -13,9 +13,15 @@ from extensions.db import db
 
 class CampusController:
     @staticmethod
-    def get_all_campuses():
+    def get_all_campuses(page=1, per_page=10):
         """获取所有校区"""
-        return Campus.query.all()
+        paginated_campuses = Campus.query.paginate(page=page, per_page=per_page, error_out=False)  # 分页
+        return paginated_campuses.items, paginated_campuses.pages  # 返回分页后的数据和总页数
+
+    @staticmethod
+    def get_campus_by_id(campus_id):
+        """根据ID获取校区"""
+        return Campus.query.get(campus_id)
 
     @staticmethod
     def create_campus(name, description):
@@ -26,10 +32,18 @@ class CampusController:
         return campus
 
     @staticmethod
-    def get_campus_by_id(campus_id):
-        """根据ID获取校区"""
-        return Campus.query.get(campus_id)
+    def update_campus(campus_id, **kwargs):
+        """更新校区"""
+        campus = Campus.query.get(campus_id)
+        if not campus:
+            return None
 
+        for key, value in kwargs.items():
+            if hasattr(campus, key):
+                setattr(campus, key, value)
+
+        db.session.commit()
+        return campus
 
     @staticmethod
     def delete_campus(campus_id):

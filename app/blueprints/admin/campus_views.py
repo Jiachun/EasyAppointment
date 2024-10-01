@@ -21,4 +21,4 @@ campuses = []
 @campus_blueprint.route('/', methods=['GET'])
 def list_campuses():
     """查询校区列表"""
-    return render_template('admin/manage_campuses.html', campus=campuses)
+    return render_template('admin/manage_campuses.html', campuses=campuses)

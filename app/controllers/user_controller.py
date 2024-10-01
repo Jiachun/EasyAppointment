@@ -13,22 +13,26 @@ from extensions.db import db
 
 class UserController:
     @staticmethod
-    def get_all_users():
+    def get_users(page=1, per_page=10):
         """获取所有用户"""
-        return User.query.all()
-
-    @staticmethod
-    def create_user(username, email, password_hash):
-        """创建用户"""
-        user = User(username=username, email=email, password_hash=password_hash)
-        db.session.add(user)
-        db.session.commit()
-        return user
+        paginated_users = User.query.paginate(page=page, per_page=per_page, error_out=False)  # 分页
+        return paginated_users.items, paginated_users.pages  # 返回分页后的数据和总页数
 
     @staticmethod
     def get_user_by_id(user_id):
         """根据ID获取用户"""
         return User.query.get(user_id)
+
+    @staticmethod
+    def create_user(username, phone_number, password_hash):
+        """创建用户"""
+        user = User(username=username, phone_number=phone_number, password_hash=password_hash)
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    @staticmethod
+    def update_user(user_id, username=None, phone_number=None, password_hash):
 
     @staticmethod
     def delete_user(user_id):
