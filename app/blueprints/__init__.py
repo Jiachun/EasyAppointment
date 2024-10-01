@@ -1,4 +1,4 @@
-from .user_views import user_blueprint
+from .admin import user_blueprint
 
 
 def register_blueprints(app):
