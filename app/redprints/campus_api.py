@@ -10,14 +10,15 @@
 from flask import Blueprint, jsonify, request
 from app.controllers import CampusController
 
+
 campus_api = Blueprint('campus_api', __name__)
 
 
-@campus_api.route('/campus', methods=['GET'])
-def get_campus():
+@campus_api.route('/', methods=['GET'])
+def get_campuses():
     """获取所有校区信息的 API 接口"""
-    campus = CampusController.get_all_campus()
-    return jsonify([campus.to_dic() for campus in campus])
+    campuses = CampusController.get_all_campuses()
+    return jsonify([campus.to_dict() for campus in campuses])
 
 
 @campus_api.route('/', methods=['POST'])
@@ -28,7 +29,7 @@ def create_campus():
         name=data['name'],
         description=data['description'],
     )
-    return jsonify(campus.to_dic())
+    return jsonify(campus.to_dict()), 201
 
 
 @campus_api.route('/<int:campus_id>', methods=['GET'])
@@ -36,7 +37,7 @@ def gt_campus(campus_id):
     """根据校区ID获取校区信息的 API 接口"""
     campus = CampusController.get_campus_by_id(campus_id)
     if campus:
-        return jsonify(campus.to_dic())
+        return jsonify(campus.to_dict())
     return jsonify({'error': 'Campus not found'}), 404
 
 

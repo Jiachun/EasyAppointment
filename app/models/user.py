@@ -19,6 +19,7 @@ class User(db.Model):
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 用户ID
     username = Column(String(50), unique=True, nullable=False)  # 用户名
+    openid = Column(String(50), unique=True, nullable=True)  # OpenID
     password_hash = Column(String(128), nullable=False)  # 密码
     first_name = Column(String(50), nullable=True)  # 名
     last_name = Column(String(50), nullable=True)  # 姓

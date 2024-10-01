@@ -39,3 +39,23 @@ class UserController:
             db.session.commit()
             return True
         return False
+
+
+    @staticmethod
+    def search_users(name=None, phone=None, id_number=None, gender=None, page=1, per_page=10):
+        """根据姓名、手机号、身份证号和性别进行多条件分页查询"""
+        query = User.query
+
+        if name:
+            query = query.filter((User.first_name.like(f"%{name}%")) | (User.last_name.like(f"%{name}%")))
+        if phone:
+            query = query.filter(User.phone_number.like(f"%{phone}%"))
+        if id_number:
+            query = query.filter(User.id_number.like(f"%{id_number}%"))
+        if gender:
+            query = query.filter(User.gender == gender)
+
+        # 分页
+        paginated_users = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        return paginated_users.items, paginated_users.pages  # 返回分页后的数据和总页数

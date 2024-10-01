@@ -13,7 +13,7 @@ from extensions.db import db
 
 class CampusController:
     @staticmethod
-    def get_all_campus():
+    def get_all_campuses():
         """获取所有校区"""
         return Campus.query.all()
 
@@ -26,7 +26,7 @@ class CampusController:
         return campus
 
     @staticmethod
-    def get_campus(campus_id):
+    def get_campus_by_id(campus_id):
         """根据ID获取校区"""
         return Campus.query.get(campus_id)
 
