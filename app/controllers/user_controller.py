@@ -17,7 +17,6 @@ class UserController:
         """获取所有用户"""
         return User.query.all()
 
-
     @staticmethod
     def create_user(username, email, password_hash):
         """创建用户"""
@@ -26,12 +25,10 @@ class UserController:
         db.session.commit()
         return user
 
-
     @staticmethod
     def get_user_by_id(user_id):
         """根据ID获取用户"""
         return User.query.get(user_id)
-
 
     @staticmethod
     def delete_user(user_id):
