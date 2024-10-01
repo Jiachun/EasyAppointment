@@ -1,4 +1,3 @@
-
 """
 # 文件名称:blueprints.campus_views
 # 作者:李业
