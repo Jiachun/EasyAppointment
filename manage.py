@@ -2,7 +2,7 @@ import click
 from flask_migrate import Migrate
 from app import create_app
 from extensions.db import db
-from app.models import User, Role, Permission, Department, user_role, user_department, role_permission
+from app.models import User, Role, Permission, Department, user_role, user_department, role_permission, campus, visitor, visitor_log
 
 
 app = create_app()
