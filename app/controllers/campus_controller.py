@@ -1,10 +1,10 @@
-
+# -*- coding: utf-8 -*-
 """
-#文件名称: controllers/campus_controller.py
-#作者: 李业
-#创建日期: 2024-10-01
-#版本:1.0
-#描述: 校区业务逻辑控制器
+# 文件名称: controllers/campus_controller.py
+# 作者: 李业
+# 创建日期: 2024-10-01
+# 版本: 1.0
+# 描述: 校区业务逻辑控制器
 """
 
 from app.models import Campus

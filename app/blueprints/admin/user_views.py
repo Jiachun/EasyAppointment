@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-# 文件名称: blueprints/user_views.py
+# 文件名称: blueprints/admin/user_views.py
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-01
 # 版本: 1.0
@@ -15,8 +15,8 @@ from app.controllers import UserController
 user_blueprint = Blueprint('user_blueprint', __name__)
 
 
-# 模拟用户数据
-users = [{'id': 1, 'name': 'Alice'}, {'id': 2, 'name': 'Bob'}]
+users = []
+
 
 @user_blueprint.route('/', methods=['GET'])
 def list_users():
