@@ -29,7 +29,6 @@ def get_campuses():
     return jsonify(response), status_code
 
 
-
 @campus_api.route('/<int:campus_id>', methods=['GET'])
 def get_campus(campus_id):
     """根据校区ID获取校区信息的 API 接口"""

@@ -15,7 +15,10 @@ class CampusController:
     @staticmethod
     def get_all_campuses(page=1, per_page=10):
         """获取所有校区信息"""
-        paginated_campuses = Campus.query.paginate(page=page, per_page=per_page, error_out=False)  # 分页
+
+        # 分页
+        paginated_campuses = Campus.query.paginate(page=page, per_page=per_page, error_out=False)
+
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
             "campuses": [campus.to_dict() for campus in paginated_campuses.items],
@@ -36,7 +39,8 @@ class CampusController:
 
     @staticmethod
     def create_campus(data):
-        """校验并创建校区信息"""
+        """创建校区信息"""
+
         # 校验校区名称是否存在并有效
         if 'name' not in data or len(data['name']) < 3:
             return {'error': '校区名称不能为空且至少为3个字符'}, 400
@@ -61,7 +65,8 @@ class CampusController:
 
     @staticmethod
     def update_campus(campus_id, data):
-        """校验并更新校区信息"""
+        """更新校区信息"""
+
         # 校验校区名称是否有效
         if 'name' not in data or len(data['name']) < 3:
             return {'error': '校区名称不能为空且至少为3个字符'}, 400
@@ -90,8 +95,10 @@ class CampusController:
     @staticmethod
     def delete_campus(campus_id):
         """删除校区信息"""
+
         # 查找现有的校区信息
         campus = Campus.query.get(campus_id)
+
         if campus:
             # 提交数据库更新
             try:
@@ -101,5 +108,6 @@ class CampusController:
                 db.session.rollback()
                 return {'error': '数据库更新失败: {}'.format(str(e))}, 500
             return {'message': '校区删除成功'}, 200
+
         return {'error': '校区未找到'}, 404
 
