@@ -9,21 +9,80 @@
 
 
 import re
-from id_validator import validator
 
 
-def validate_id_card(id_card):
-    # 验证身份证号合法性
-    validator.is_valid(id_card)
+def validate_username(username):
+    # 正则表达式匹配用户名，长度为3到20个字符，由字母、数字、下划线组成
+    pattern = r'^[a-zA-Z0-9_]{3,20}$'
+    return bool(re.match(pattern, username))
 
 
-def validate_email(email):
-    # 正则表达式匹配邮箱格式
-    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-    return bool(re.match(pattern, email))
+def validate_name(name):
+    # 正则表达式匹配中文或英文姓名，允许中间有连字符、空格或·符号
+    pattern = r"^[\u4e00-\u9fa5]{2,10}(·[\u4e00-\u9fa5]{2,10})*$|^[a-zA-Z]+([-· ][a-zA-Z]+)*$"
+    return bool(re.match(pattern, name))
+
+
+def validate_gender(gender):
+    # 正则表达式匹配性别
+    pattern = r"^男|女$"
+    return bool(re.match(pattern, gender))
+
+
+def validate_id_type(id_type):
+    # 正则表达式匹配证件类型
+    pattern = r"^居民身份证|护照|港澳居民来往内地通行证|台湾居民来往大陆通行证$"
+    return bool(re.match(pattern, id_type))
+
+
+def validate_id_card(card_number):
+    # 正则表达式验证身份证号格式
+    pattern = r"^\d{17}[\dXx]$"
+    if not re.match(pattern, card_number):
+        return False
+
+    # 加权因子和校验码对应表
+    weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
+    check_codes = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2']
+
+    # 计算校验码
+    sum_val = sum(int(card_number[i]) * weights[i] for i in range(17))
+    calculated_check_code = check_codes[sum_val % 11]
+
+    return card_number[-1].upper() == calculated_check_code
+
+
+def validate_passport(card_number):
+    # 正则表达式验证护照的合法性
+    pattern = r"^[a-zA-Z][0-9]{8}$"
+    return bool(re.match(pattern, card_number))
+
+
+def validate_hk_macau_pass(card_number):
+    # 正则表达式验证港澳居民来往内地通行证的合法性
+    pattern = r"^[HMhm][0-9]{8,10}$"
+    return bool(re.match(pattern, card_number))
+
+
+def validate_tw_pass(card_number):
+    # 正则表达式验证台湾居民来往大陆通行证的合法性
+    pattern = r"^\d{8}|\d{10}$"
+    return bool(re.match(pattern, card_number))
 
 
 def validate_phone_number(phone_number):
     # 正则表达式匹配手机号格式
     pattern = r"^1[3-9]\d{9}$"
     return bool(re.match(pattern, phone_number))
+
+
+def validate_id_number(id_type, id_number):
+    # 校验证件号码合法性
+    if id_type == '居民身份证':
+        return validate_id_card(id_number)
+    if id_type == '护照':
+        return validate_passport(id_number)
+    if id_type == '港澳居民来往内地通行证':
+        return validate_hk_macau_pass(id_number)
+    if id_type == '台湾居民来往大陆通行证':
+        return validate_tw_pass(id_number)

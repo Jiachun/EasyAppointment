@@ -9,7 +9,7 @@
 
 from app.models import User
 from extensions.db import db
-from utils.validate_utils import validate_phone_number
+from utils.validate_utils import validate_username, validate_phone_number, validate_name, validate_gender, validate_id_type, validate_id_number
 
 
 class UserController:
@@ -42,6 +42,14 @@ class UserController:
     def create_user(data):
         """创建用户信息"""
 
+        # 校验用户名是否存在并有效
+        if 'username' not in data:
+            return {'error': '用户名不能为空'}, 400
+        if not validate_username(data['username']):
+            return {'error': '用户名格式有误'}, 400
+        if User.query.filter_by(username=data['username']).first():
+            return {'error': '用户名已存在'}, 400
+
         # 校验手机号码是否存在并有效
         if 'phone_number' not in data:
             return {'error': '手机号码不能为空'}, 400
@@ -50,16 +58,21 @@ class UserController:
         if User.query.filter_by(phone_number=data['phone_number']).first():
             return {'error': '手机号码已存在'}, 400
 
-        # 校验用户名是否存在并有效
-        if 'username' not in data or len(data['name']) < 3:
-            return {'error': '用户名不能为空且至少为3个字符'}, 400
-        if User.query.filter_by(username=data['username']).first():
-            return {'error': '用户名已存在'}, 400
-
-        # 校验密码是否存在并有效
-
-
         # 校验姓名格式是否正确
+        if 'name' in data and not validate_name(data['name']):
+            return {'error': '姓名格式有误'}, 400
+
+        # 校验性别是否正确
+        if 'gender' in data and not validate_gender(data['gender']):
+            return {'error': '性别格式有误'}, 400
+
+        # 校验证件类型是否正确
+        if 'id_type' in data and not validate_id_type(data['id_type']):
+            return {'error': '证件类型有误'}, 400
+
+        # 校验证件号码是否合法
+        if 'id_type' in data and 'id_number' in data and not validate_id_number(data['id_type'], data['id_number']):
+            return {'error': '证件号码不合法'}, 400
 
         user = User(
             username=data['username'],
@@ -84,6 +97,7 @@ class UserController:
             return {'error': '数据库更新失败: {}'.format(str(e))}, 500
 
         return user.to_dict(), 200
+
 
     @staticmethod
     def update_user(user_id, data):
@@ -126,6 +140,7 @@ class UserController:
             return {'error': '数据库更新失败: {}'.format(str(e))}, 500
 
         return user.to_dict(), 200
+
 
     @staticmethod
     def delete_user(user_id):
