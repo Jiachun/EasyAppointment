@@ -18,8 +18,23 @@ user_api = Blueprint('user_api', __name__)
 @user_api.route('/', methods=['GET'])
 def get_users():
     """获取所有用户信息的 API 接口"""
-    users = UserController.get_all_users()
-    return jsonify([user.to_dict() for user in users])
+
+    # 获取分页参数
+    try:
+        page = int(request.args.get('page', 1))  # 默认为第1页
+        per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
+    except ValueError:
+        return jsonify({"error": "无效的分页参数"}), 400
+
+    response, status_code = UserController.get_all_users(page, per_page)
+    return jsonify(response), status_code
+
+
+@user_api.route('/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    """根据用户ID获取用户信息的 API 接口"""
+    response, status_code = UserController.get_user_by_id(user_id)
+    return jsonify(response), status_code
 
 
 @user_api.route('/', methods=['POST'])
@@ -32,15 +47,6 @@ def create_user():
         password_hash=data['password_hash']
     )
     return jsonify(user.to_dict()), 201
-
-
-@user_api.route('/<int:user_id>', methods=['GET'])
-def get_user(user_id):
-    """根据用户ID获取用户信息的 API 接口"""
-    user = UserController.get_user_by_id(user_id)
-    if user:
-        return jsonify(user.to_dict())
-    return jsonify({'error': 'User not found'}), 404
 
 
 @user_api.route('/<int:user_id>', methods=['DELETE'])

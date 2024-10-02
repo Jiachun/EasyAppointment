@@ -15,7 +15,10 @@ class UserController:
     @staticmethod
     def get_all_users(page=1, per_page=10):
         """获取所有用户"""
-        paginated_users = User.query.paginate(page=page, per_page=per_page, error_out=False)  # 分页
+
+        # 分页
+        paginated_users = User.query.paginate(page=page, per_page=per_page, error_out=False)
+        
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
             "users": [user.to_dict() for user in paginated_users.items],
