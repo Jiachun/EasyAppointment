@@ -18,14 +18,8 @@ user_api = Blueprint('user_api', __name__)
 @user_api.route('/', methods=['GET'])
 def get_users():
     """获取所有用户信息的 API 接口"""
-
-    # 获取分页参数
-    try:
-        page = int(request.args.get('page', 1))  # 默认为第1页
-        per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
-    except ValueError:
-        return jsonify({"error": "无效的分页参数"}), 400
-
+    page = int(request.args.get('page', 1))  # 默认为第1页
+    per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
     response, status_code = UserController.get_all_users(page, per_page)
     return jsonify(response), status_code
 
@@ -41,21 +35,23 @@ def get_user(user_id):
 def create_user():
     """创建新用户的 API 接口"""
     data = request.json
-    user = UserController.create_user(
-        username=data['username'],
-        email=data['email'],
-        password_hash=data['password_hash']
-    )
-    return jsonify(user.to_dict()), 201
+    response, status_code = UserController.create_user(data)
+    return jsonify(response), status_code
+
+
+@user_api.route('/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    """根据用户ID修改用户信息的 API 接口"""
+    data = request.json
+    response, status_code = UserController.update_user(user_id, data)
+    return jsonify(response), status_code
 
 
 @user_api.route('/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     """根据用户ID删除用户的 API 接口"""
-    success = UserController.delete_user(user_id)
-    if success:
-        return jsonify({'message': 'User deleted successfully'})
-    return jsonify({'error': 'User not found'}), 404
+    response, status_code = UserController.delete_user(user_id)
+    return jsonify(response), status_code
 
 
 # 根据多条件搜索用户，支持分页

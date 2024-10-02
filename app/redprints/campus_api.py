@@ -17,14 +17,8 @@ campus_api = Blueprint('campus_api', __name__)
 @campus_api.route('/', methods=['GET'])
 def get_campuses():
     """获取所有校区信息的 API 接口"""
-
-    # 获取分页参数
-    try:
-        page = int(request.args.get('page', 1))  # 默认为第1页
-        per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
-    except ValueError:
-        return jsonify({"error": "无效的分页参数"}), 400
-
+    page = int(request.args.get('page', 1))  # 默认为第1页
+    per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
     response, status_code = CampusController.get_all_campuses(page, per_page)
     return jsonify(response), status_code
 

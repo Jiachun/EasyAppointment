@@ -18,17 +18,17 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 用户ID
-    username = Column(String(50), unique=True, nullable=False)  # 用户名
-    openid = Column(String(50), unique=True, nullable=True)  # OpenID
+    username = Column(String(50), nullable=False)  # 用户名
     password_hash = Column(String(128), nullable=False)  # 密码
-    first_name = Column(String(50), nullable=True)  # 名
-    last_name = Column(String(50), nullable=True)  # 姓
+    phone_number = Column(String(20), nullable=False)  # 手机号码
+    openid = Column(String(128), nullable=True)  # OpenID
+    name = Column(String(50), nullable=True)  # 姓名
     gender = Column(String(10), nullable=True)  # 性别
     id_type = Column(String(50), nullable=True)  # 证件类型
-    id_number = Column(String(100), unique=True, nullable=True)  # 证件号码
-    phone_number = Column(String(20), unique=True, nullable=False)  # 手机号码
-    is_active = Column(Boolean, default=True)  # 是否激活
+    id_number = Column(String(100), nullable=True)  # 证件号码
     is_staff = Column(Boolean, default=False)  # 是否工作人员
+    is_active = Column(Boolean, default=True)  # 是否激活
+    is_deleted = Column(Boolean, default=False)  # 是否删除
 
     # 用户可以拥有多个角色
     roles = relationship('Role', secondary=user_role, back_populates='users')
@@ -46,13 +46,16 @@ class User(db.Model):
         return {
             'id': self.id,
             'username': self.username,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
+            'openid': self.openid,
+            'password_hash': self.password_hash,
+            'name': self.name,
             'gender': self.gender,
             'id_type': self.id_type,
             'id_number': self.id_number,
             'phone_number': self.phone_number,
             'is_staff': self.is_staff,
+            'is_active': self.is_active,
+            'is_deleted': self.is_deleted,
         }
 
     def can(self, permission_name):
