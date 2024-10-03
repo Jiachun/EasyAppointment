@@ -52,28 +52,3 @@ def delete_user(user_id):
     """根据用户ID删除用户的 API 接口"""
     response, status_code = UserController.delete_user(user_id)
     return jsonify(response), status_code
-
-
-# 根据多条件搜索用户，支持分页
-@user_api.route('/search', methods=['GET'])
-def search_users():
-    name = request.args.get('name')
-    phone = request.args.get('phone')
-    id_number = request.args.get('id_number')
-    gender = request.args.get('gender')
-
-    # 获取分页参数
-    try:
-        page = int(request.args.get('page', 1))  # 默认为第1页
-        per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
-    except ValueError:
-        return jsonify({"message": "Invalid pagination parameters"}), 400
-
-    users, total_pages = UserController.search_users(name, phone, id_number, gender, page, per_page)
-
-    return jsonify({
-        "users": [user.to_dict() for user in users],
-        "total_pages": total_pages,
-        "current_page": page,
-        "per_page": per_page
-    })

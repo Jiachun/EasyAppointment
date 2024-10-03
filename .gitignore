@@ -1,4 +1,6 @@
-# Ignore .env file for security
+# 忽略环境变量配置文件
 .env
-.idea
-.venv
+
+# 忽略密钥文件
+/keys/private_key.pem
+/keys/public_key.pem

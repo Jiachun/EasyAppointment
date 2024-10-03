@@ -8,33 +8,69 @@
 """
 
 
+import os
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 
 
-def generate_key(dir_path):
-    # 生成 RSA 密钥对
-    key = RSA.generate(2048)
+def generate_key_pair(keys_directory):
+    # 检查目录是否存在，不存在则创建
+    if not os.path.exists(keys_directory):
+        os.makedirs(keys_directory)
+        print(f"创建目录: {keys_directory}")
 
-    # 保存私钥
-    with open(dir_path + 'private_key.pem', 'wb') as f:
-        f.write(key.export_key())
+        # 生成 RSA 密钥对
+        key = RSA.generate(2048)
 
-    # 保存公钥
-    with open(dir_path + 'public_key.pem', 'wb') as f:
-        f.write(key.publickey().export_key())
+        # 保存私钥
+        with open(os.path.join(keys_directory, 'private_key.pem'), 'wb') as f:
+            f.write(key.export_key())
+        print("私钥已生成并保存为 private_key.pem")
+
+        # 保存公钥
+        with open(os.path.join(keys_directory, 'public_key.pem'), 'wb') as f:
+            f.write(key.publickey().export_key())
+        print("公钥已生成并保存为 public_key.pem")
+    else:
+        print(f"目录 {keys_directory} 已存在")
 
 
-def load_public_key(file_path):
+def load_public_key_from_file(file_path):
     # 从文件加载公钥
-    with open(file_path, 'rb') as f:
-        return RSA.import_key(f.read())
+    try:
+        with open(file_path, 'rb') as f:
+            return RSA.import_key(f.read())
+    except FileNotFoundError:
+        raise FileNotFoundError(f"未找到公钥文件: {file_path}")
+    except ValueError:
+        raise ValueError(f"公钥文件内容无效: {file_path}")
 
-
-def load_private_key(file_path):
+def load_private_key_from_file(file_path):
     # 从文件加载私钥
-    with open(file_path, 'rb') as f:
-        return RSA.import_key(f.read())
+    try:
+        with open(file_path, 'rb') as f:
+            return RSA.import_key(f.read())
+    except FileNotFoundError:
+        raise FileNotFoundError(f"未找到私钥文件: {file_path}")
+    except ValueError:
+        raise ValueError(f"私钥文件内容无效: {file_path}")
+
+def load_public_key_from_env(name):
+    # 从环境变量加载公钥
+    public_key_data = os.getenv(name)
+    if public_key_data:
+        return RSA.import_key(public_key_data)
+    else:
+        raise EnvironmentError(f"环境变量 {name} 中未找到公钥数据")
+
+
+def load_private_key_from_env(name):
+    # 从环境变量加载私钥
+    private_key_data = os.getenv(name)
+    if private_key_data:
+        return RSA.import_key(private_key_data)
+    else:
+        raise EnvironmentError(f"环境变量 {name} 中未找到私钥数据")
 
 
 def encrypt_message(public_key, message):
@@ -51,12 +87,16 @@ def decrypt_message(private_key, encrypted_message):
 
 def encrypt_content(content):
     # 加载公钥对数据进行加密
-    pub_key = load_public_key('public_key.pem')
-    return encrypt_message(pub_key, content.encode('utf-8'))
+    if os.getenv('PUBLIC_KEY'):
+        return encrypt_message(load_public_key_from_env('PUBLIC_KEY'), content.encode('utf-8'))
+    else:
+        return encrypt_message(load_public_key_from_file(os.path.join('keys', 'public_key.pem')), content.encode('utf-8'))
 
 
 def decrypt_content(content):
     # 加载私钥对数据进行解密
-    priv_key = load_private_key('private_key.pem')
-    return decrypt_message(priv_key, content).decode('utf-8')
+    if os.getenv('PRIVATE_KEY'):
+        return decrypt_message(load_private_key_from_env('PRIVATE_KEY'), content).decode('utf-8')
+    else:
+        return decrypt_message(load_private_key_from_file(os.path.join('keys', 'private_key.pem')), content).decode('utf-8')
 
