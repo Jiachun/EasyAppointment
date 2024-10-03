@@ -9,8 +9,12 @@
 
 
 import os
+from dotenv import load_dotenv
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
+
+
+load_dotenv()
 
 
 def generate_key_pair(keys_directory):
@@ -88,6 +92,7 @@ def decrypt_message(private_key, encrypted_message):
 def encrypt_content(content):
     # 加载公钥对数据进行加密
     if os.getenv('PUBLIC_KEY'):
+        print('env')
         return encrypt_message(load_public_key_from_env('PUBLIC_KEY'), content.encode('utf-8'))
     else:
         return encrypt_message(load_public_key_from_file(os.path.join('keys', 'public_key.pem')), content.encode('utf-8'))
