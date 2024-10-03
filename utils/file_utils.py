@@ -65,20 +65,20 @@ def export_excel(dataframe, file_path, sheet_name='Sheet1'):
 		})
 
 		# 应用表头格式
-		for col_num, value in enumerate(df.columns.values):
+		for col_num, value in enumerate(dataframe.columns.values):
 			worksheet.write(0, col_num, value, format_header)  # 手动写入表头并应用格式
 
 		# 应用内容格式
-		for row in range(1, len(df) + 1):  # 跳过表头行，从数据行开始
+		for row in range(1, len(dataframe) + 1):  # 跳过表头行，从数据行开始
 			worksheet.set_row(row, 22, format_content)  # 设置行高为 20，并应用内容格式
 
 		worksheet.set_row(0, 26)  # 设置表头行高为 26
 
 		# 计算每列的最大字符长度并设置列宽
-		for idx, col in enumerate(df.columns):
+		for idx, col in enumerate(dataframe.columns):
 			# 获取当前列的所有值以及表头的字符长度
 			column_len = max(
-				df[col].astype(str).map(len).max(),  # 数据部分的最大字符长度
+				dataframe[col].astype(str).map(len).max(),  # 数据部分的最大字符长度
 				len(col)  # 表头的字符长度
 			) + 2  # 增加一些额外的空间以防止过紧
 

@@ -24,15 +24,3 @@ def mask_id_card(id_card):
 def mask_phone_number(phone_number):
     # 手机号脱敏
     return phone_number[:3] + '****' + phone_number[-4:]
-
-
-def mask_email(email):
-    # 邮箱脱敏
-    # 拆分邮箱名和域名
-    name, domain = email.split("@")
-
-    # 邮箱名保留前两位，后面的用星号代替
-    masked_name = name[:2] + '*' * (len(name) - 2)
-
-    # 组合邮箱名和域名
-    return masked_name + "@" + domain
