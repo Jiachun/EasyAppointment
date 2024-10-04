@@ -88,7 +88,6 @@ class UserController:
             gender = data.get('gender', ''),
             id_type = data.get('id_type', ''),
             id_number = data.get('id_number', ''),
-            is_staff = data.get('is_staff', True),
             is_active = data.get('is_active', True),
             is_deleted = data.get('is_deleted', False),
         )
@@ -152,10 +151,6 @@ class UserController:
             if not validate_id_number(data['id_number'], data['id_number']):
                 return {'error': '证件号码不合法'}, 400
             user.id_number = data['id_number']
-
-        # 更新用户类型
-        if 'is_staff' in data:
-            user.is_staff = data['is_staff']
 
         # 更新激活状态
         if 'is_active' in data:

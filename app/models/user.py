@@ -26,7 +26,6 @@ class User(db.Model):
     gender = Column(String(10), nullable=True)  # 性别
     id_type = Column(String(50), nullable=True)  # 证件类型
     id_number = Column(String(100), nullable=True)  # 证件号码
-    is_staff = Column(Boolean, default=False)  # 是否工作人员
     is_active = Column(Boolean, default=True)  # 是否激活
     is_deleted = Column(Boolean, default=False)  # 是否删除
 
@@ -51,7 +50,6 @@ class User(db.Model):
             'id_type': self.id_type,
             'id_number': self.id_number,
             'phone_number': self.phone_number,
-            'is_staff': self.is_staff,
             'is_active': self.is_active,
         }
 
