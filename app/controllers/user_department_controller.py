@@ -19,7 +19,7 @@ class UserDepartmentController:
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
 
         if not user:
-            return {'error': '用户不存在'}, 404
+            return {'error': '用户未找到'}, 404
 
         return {"departments": [department.to_dict() for department in user.departments]}, 200
 
@@ -36,7 +36,7 @@ class UserDepartmentController:
         department = Department.query.get(department_id)
 
         if not user:
-            return {'error': '用户不存在'}, 404
+            return {'error': '用户未找到'}, 404
         if not department:
             return {'error': '部门不存在'}, 404
 
@@ -68,7 +68,7 @@ class UserDepartmentController:
         department = Department.query.get(department_id)
 
         if not user:
-            return {'error': '用户不存在'}, 404
+            return {'error': '用户未找到'}, 404
         if not department:
             return {'error': '部门不存在'}, 404
 

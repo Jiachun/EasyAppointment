@@ -6,3 +6,4 @@ from .department_controller import DepartmentController
 from .user_role_controller import UserRoleController
 from .role_permission_controller import RolePermissionController
 from .user_department_controller import UserDepartmentController
+from .visitor_controller import VisitorController

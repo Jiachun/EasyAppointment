@@ -19,7 +19,7 @@ class UserRoleController:
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
 
         if not user:
-            return {'error': '用户不存在'}, 404
+            return {'error': '用户未找到'}, 404
 
         return {"roles": [role.to_dict() for role in user.roles]}, 200
 
@@ -36,7 +36,7 @@ class UserRoleController:
         role = Role.query.get(role_id)
 
         if not user:
-            return {'error': '用户不存在'}, 404
+            return {'error': '用户未找到'}, 404
         if not role:
             return {'error': '角色不存在'}, 404
 
@@ -68,7 +68,7 @@ class UserRoleController:
         role = Role.query.get(role_id)
 
         if not user:
-            return {'error': '用户不存在'}, 404
+            return {'error': '用户未找到'}, 404
         if not role:
             return {'error': '角色不存在'}, 404
 

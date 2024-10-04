@@ -17,10 +17,11 @@ class Visitor(db.Model):
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 访客ID
     name = Column(String(50), nullable=False)  # 姓名
+    gender = Column(String(10), nullable=True)  # 性别
     id_type = Column(String(50), nullable=False)  # 证件类型
     id_number = Column(String(100), nullable=False)  # 证件号码
     phone_number = Column(String(20), nullable=False)  # 手机号码
-    is_active = Column(Boolean, default=True)  # 是否激活
+    is_deleted = Column(Boolean, default=False)  # 是否删除
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)  # 上一级用户ID
 
     # 关联到用户
@@ -28,3 +29,14 @@ class Visitor(db.Model):
 
     def __repr__(self):
         return f'<Visitor {self.name}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'gender': self.gender,
+            'id_type': self.id_type,
+            'id_number': self.id_number,
+            'phone_number': self.phone_number,
+            'user_id': self.user_id,
+        }
