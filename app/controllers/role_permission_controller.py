@@ -23,67 +23,13 @@ class RolePermissionController:
 
         return {"permissions": [permission.to_dict() for permission in role.permissions]}, 200
 
-    @staticmethod
-    def assign_permission_to_role(role_id, permission_id):
-        """为角色分配权限"""
-
-        # 查找现有的角色信息
-        role = Role.query.get(role_id)
-
-        # 查找现有的权限信息
-        permission = Permission.query.get(permission_id)
-
-        if not role:
-            return {'error': '角色不存在'}, 404
-        if not permission:
-            return {'error': '权限不存在'}, 404
-
-        # 如果权限未分配给角色，添加关联
-        if permission not in role.permissions:
-            role.permissions.append(permission)
-
-            # 提交数据库更新
-            try:
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                return {'error': '数据库更新失败: {}'.format(str(e))}, 500
-            return {'message': '权限分配成功'}, 200
-
-        return {'error': '该权限已分配给角色'}, 400
 
     @staticmethod
-    def remove_permission_from_role(role_id, permission_id):
-        """从角色中移除权限"""
+    def add_permissions_to_role(role_id, permission_ids):
+        """为角色添加权限"""
 
-        # 查找现有的角色信息
-        role = Role.query.get(role_id)
-
-        # 查找现有的权限信息
-        permission = Permission.query.get(permission_id)
-
-        if not role:
-            return {'error': '角色不存在'}, 404
-        if not permission:
-            return {'error': '权限不存在'}, 404
-
-        # 如果权限存在于角色中，移除关联
-        if permission in role.permissions:
-            role.permissions.remove(permission)
-
-            # 提交数据库更新
-            try:
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                return {'error': '数据库更新失败: {}'.format(str(e))}, 500
-            return {'message': '权限移除成功'}, 200
-
-        return {'error': '该角色不具备此权限'}, 400
-
-    @staticmethod
-    def update_permissions_for_role(role_id, permission_ids):
-        """更新角色的权限列表"""
+        if not permission_ids:
+            return {'error': '权限ID列表不能为空'}, 400
 
         # 查找现有的角色信息
         role = Role.query.get(role_id)
@@ -94,8 +40,10 @@ class RolePermissionController:
         # 获取所有新的权限
         permissions = Permission.query.filter(Permission.id.in_(permission_ids)).all()
 
-        # 更新角色的权限
-        role.permissions = permissions
+        if not permissions:
+            return {'error': '权限不存在或无效'}, 404
+
+        role.permissions.extend(permissions)
 
         # 提交数据库更新
         try:
@@ -104,4 +52,37 @@ class RolePermissionController:
             db.session.rollback()
             return {'error': '数据库更新失败: {}'.format(str(e))}, 500
 
-        return {'message': '权限更新成功'}, 200
+        return {"permissions": [permission.to_dict() for permission in role.permissions]}, 200
+
+    @staticmethod
+    def remove_permissions_from_role(role_id, permission_ids):
+        """从角色中移除权限"""
+
+        if not permission_ids:
+            return {'error': '权限ID列表不能为空'}, 400
+
+        # 查找现有的角色信息
+        role = Role.query.get(role_id)
+
+        if not role:
+            return {'error': '角色不存在'}, 404
+
+        # 查找现有的权限信息
+        permissions = Permission.query.filter(Permission.id.in_(permission_ids)).all()
+
+        if not permissions:
+            return {'error': '权限不存在或无效'}, 404
+
+        # 如果权限存在于角色中，移除关联
+        for permission in permissions:
+            if permission in role.permissions:
+                role.permissions.remove(permission)
+
+        # 提交数据库更新
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+
+        return {"permissions": [permission.to_dict() for permission in role.permissions]}, 200

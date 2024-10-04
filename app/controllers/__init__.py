@@ -3,3 +3,4 @@ from .campus_controller import CampusController
 from .role_controller import RoleController
 from .permission_controller import PermissionController
 from .department_controller import DepartmentController
+from .role_permission_controller import RolePermissionController
