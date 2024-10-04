@@ -2,6 +2,7 @@ from .user_api import user_api
 from .campus_api import campus_api
 from .role_api import role_api
 from .permission_api import permission_api
+from .department_api import department_api
 
 
 def register_redprints(app):
@@ -9,3 +10,4 @@ def register_redprints(app):
     app.register_blueprint(campus_api, url_prefix='/api/campuses')  # 注册校区管理API
     app.register_blueprint(role_api, url_prefix='/api/roles')  # 注册角色管理API
     app.register_blueprint(permission_api, url_prefix='/api/permissions')  # 注册权限管理API
+    app.register_blueprint(department_api, url_prefix='/api/departments')  # 注册权限管理API
