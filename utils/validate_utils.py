@@ -86,3 +86,8 @@ def validate_id_number(id_type, id_number):
         return validate_hk_macau_pass(id_number)
     if id_type == '台湾居民来往大陆通行证':
         return validate_tw_pass(id_number)
+
+def validate_visit_type(visit_type):
+    # 正则表达式匹配访客类型
+    pattern = r"^因公访问|因私访问|社会公众$"
+    return bool(re.match(pattern, visit_type))

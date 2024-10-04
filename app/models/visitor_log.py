@@ -37,3 +37,24 @@ class VisitorLog(db.Model):
 
     def __repr__(self):
         return f'<VisitorLog {self.id}>'
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "visit_time": self.visit_time,
+            "entry_time": self.entry_time,
+            "leave_time": self.leave_time,
+            "campus": self.campus,
+            "visit_type": self.visit_type,
+            "visitor_org": self.visitor_org,
+            "accompanying_people": self.accompanying_people,
+            "visited_person_name": self.visited_person_name,
+            "visited_person_org": self.visited_person_org,
+            "reason": self.reason,
+            "license_plate": self.license_plate,
+            "approver": self.approver,
+            "approval_time": self.approval_time,
+            "is_approved": self.is_approved,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
+        }
