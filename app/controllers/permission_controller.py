@@ -49,6 +49,7 @@ class PermissionController:
 
         permission = Permission(
             name=data['name'],
+            description=data.get('description', ''),
         )
 
         # 提交数据库更新

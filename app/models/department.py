@@ -44,6 +44,15 @@ class Department(db.Model):
     def __repr__(self):
         return f'<Role {self.name}>'
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'code': self.code,
+            'name': self.name,
+            'description': self.description,
+            'parent_id': self.parent_id,
+        }
+
     def has_associated_users(self):
         """检查当前部门及其子部门是否有用户关联"""
         # 检查当前部门是否有用户关联

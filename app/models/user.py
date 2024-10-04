@@ -46,8 +46,6 @@ class User(db.Model):
         return {
             'id': self.id,
             'username': self.username,
-            'openid': self.openid,
-            'password_hash': self.password_hash,
             'name': self.name,
             'gender': self.gender,
             'id_type': self.id_type,
@@ -55,7 +53,6 @@ class User(db.Model):
             'phone_number': self.phone_number,
             'is_staff': self.is_staff,
             'is_active': self.is_active,
-            'is_deleted': self.is_deleted,
         }
 
     def can(self, permission_name):

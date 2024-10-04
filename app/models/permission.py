@@ -31,7 +31,7 @@ class Permission(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'description': self.description
+            'description': self.description,
         }
 
     def is_associated(self):
