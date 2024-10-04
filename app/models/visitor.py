@@ -24,7 +24,7 @@ class Visitor(db.Model):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)  # 上一级用户ID
 
     # 关联到用户
-    user = db.relationship("User", back_populates="visitors")
+    user = db.relationship("User", back_populates="visitors", lazy='dynamic')
 
     def __repr__(self):
         return f'<Visitor {self.name}>'

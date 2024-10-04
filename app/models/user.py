@@ -31,13 +31,13 @@ class User(db.Model):
     is_deleted = Column(Boolean, default=False)  # 是否删除
 
     # 用户可以拥有多个角色
-    roles = relationship('Role', secondary=user_role, back_populates='users')
+    roles = relationship('Role', secondary=user_role, back_populates='users', lazy='dynamic')
 
     # 用户可以拥有多个部门
-    departments = relationship('Department', secondary=user_department, back_populates='users')
+    departments = relationship('Department', secondary=user_department, back_populates='users', lazy='dynamic')
 
     # 关联访客
-    visitors = relationship("Visitor", back_populates="user")
+    visitors = relationship("Visitor", back_populates="user", lazy='dynamic')
 
     def __repr__(self):
         return f'<User {self.username}>'

@@ -21,10 +21,10 @@ class Role(db.Model):
     name = Column(String(50), unique=True, nullable=False)  # 角色名称
 
     # 角色可以拥有多个权限
-    permissions = relationship('Permission', secondary=role_permission, back_populates='roles')
+    permissions = relationship('Permission', secondary=role_permission, back_populates='roles', lazy='dynamic')
 
     # 角色可以关联多个用户
-    users = relationship('User', secondary=user_role, back_populates='roles')
+    users = relationship('User', secondary=user_role, back_populates='roles', lazy='dynamic')
 
     def __repr__(self):
         return f'<Role {self.name}>'

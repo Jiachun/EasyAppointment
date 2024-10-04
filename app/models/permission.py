@@ -22,7 +22,7 @@ class Permission(db.Model):
     description = Column(String(255))  # 权限描述（可选）
 
     # 权限可以关联多个角色
-    roles = relationship('Role', secondary=role_permission, back_populates='permissions')
+    roles = relationship('Role', secondary=role_permission, back_populates='permissions', lazy='dynamic')
 
     def __repr__(self):
         return f'<Permission {self.name}>'
