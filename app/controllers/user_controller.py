@@ -117,7 +117,7 @@ class UserController:
         if 'username' in data:
             if not validate_username(data['username']):
                 return {'error': '用户名格式有误'}, 400
-            if User.query.filter_by(username=data['username'], is_deleted=False).first():
+            if User.query.filter(User.username==data['username'], User.id!=user_id, User.is_deleted==False).first():
                 return {'error': '用户名已存在'}, 400
             user.username = data['username']
 
@@ -125,7 +125,7 @@ class UserController:
         if 'phone_number' in data:
             if not validate_phone_number(data['phone_number']):
                 return {'error': '手机号码格式有误'}, 400
-            if User.query.filter_by(phone_number=data['phone_number'], is_deleted=False).first():
+            if User.query.filter(User.phone_number==data['phone_number'], User.id!=user_id, User.is_deleted==False).first():
                 return {'error': '手机号码已存在'}, 400
             user.phone_number = data['phone_number']
 

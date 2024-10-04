@@ -70,6 +70,8 @@ class CampusController:
         # 校验校区名称是否有效
         if 'name' not in data or len(data['name']) < 3:
             return {'error': '校区名称不能为空且至少为3个字符'}, 400
+        if Campus.query.filter(Campus.name==data['name'], Campus.id!=campus_id).first():
+            return {'error': '校区名称已存在'}, 400
 
         # 查找现有的校区信息
         campus = Campus.query.get(campus_id)

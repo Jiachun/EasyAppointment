@@ -44,6 +44,19 @@ class Department(db.Model):
     def __repr__(self):
         return f'<Role {self.name}>'
 
+    def has_associated_users(self):
+        """检查当前部门及其子部门是否有用户关联"""
+        # 检查当前部门是否有用户关联
+        if self.users.count() > 0:
+            return True
+
+        # 检查子部门是否有用户关联
+        for child in self.children:
+            if child.has_associated_users():
+                return True
+
+        return False
+
     def get_ancestors(self):
         ancestors = []
         department = self

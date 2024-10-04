@@ -28,3 +28,13 @@ class Role(db.Model):
 
     def __repr__(self):
         return f'<Role {self.name}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+        }
+
+    def is_associated(self):
+        """检查角色是否被用户或权限关联"""
+        return bool(self.permissions or self.users)

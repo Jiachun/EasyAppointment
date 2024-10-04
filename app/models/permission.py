@@ -26,3 +26,14 @@ class Permission(db.Model):
 
     def __repr__(self):
         return f'<Permission {self.name}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description
+        }
+
+    def is_associated(self):
+        """检查权限是否被角色关联"""
+        return bool(self.roles)
