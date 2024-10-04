@@ -54,6 +54,7 @@ class RolePermissionController:
 
         return {"permissions": [permission.to_dict() for permission in role.permissions]}, 200
 
+
     @staticmethod
     def remove_permissions_from_role(role_id, permission_ids):
         """从角色中移除权限"""

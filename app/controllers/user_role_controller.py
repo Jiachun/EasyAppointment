@@ -16,7 +16,7 @@ class UserRoleController:
         """获取用户的所有角色"""
 
         # 查找现有的用户信息
-        user = User.query.get(user_id)
+        user = User.query.filter_by(id=user_id, is_deleted=False).first()
 
         if not user:
             return {'error': '用户不存在'}, 404
@@ -32,7 +32,7 @@ class UserRoleController:
             return {'error': '角色ID不能为空'}, 400
 
         # 查找现有的用户和角色信息
-        user = User.query.get(user_id)
+        user = User.query.filter_by(id=user_id, is_deleted=False).first()
         role = Role.query.get(role_id)
 
         if not user:
@@ -55,6 +55,7 @@ class UserRoleController:
 
         return {"roles": [role.to_dict() for role in user.roles]}, 200
 
+
     @staticmethod
     def remove_role_from_user(user_id, role_id):
         """从用户中移除角色"""
@@ -63,7 +64,7 @@ class UserRoleController:
             return {'error': '角色ID不能为空'}, 400
 
         # 查找现有的用户和角色信息
-        user = User.query.get(user_id)
+        user = User.query.filter_by(id=user_id, is_deleted=False).first()
         role = Role.query.get(role_id)
 
         if not user:
