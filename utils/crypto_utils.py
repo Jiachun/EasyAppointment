@@ -98,6 +98,7 @@ def encrypt_content(content):
     if os.getenv('PUBLIC_KEY'):
         return encrypt_message(load_public_key_from_env(), content.encode('utf-8'))
     else:
+        print(1)
         return encrypt_message(load_public_key_from_file(), content.encode('utf-8'))
 
 
