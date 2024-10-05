@@ -43,7 +43,7 @@ def are_times_on_same_day(time_str1, time_str2, fmt="%Y-%m-%d %H:%M:%S"):
 
 
 def is_time_within_three_days_future(time_str, fmt="%Y-%m-%d %H:%M:%S"):
-    # 计算字符串时间是否在三天内
+    # 计算字符串时间是否在当前时间之后的3天内
     time = datetime.strptime(time_str, fmt)
     now = datetime.now()
     three_days_future = now + timedelta(days=3)

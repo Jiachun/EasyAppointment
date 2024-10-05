@@ -7,6 +7,7 @@ from .department_api import department_api
 from .user_department_api import user_department_api
 from .campus_api import campus_api
 from .visitor_api import visitor_api
+from .visitor_log_api import visitor_log_api
 
 
 def register_redprints(app):
@@ -19,3 +20,4 @@ def register_redprints(app):
     app.register_blueprint(user_department_api, url_prefix='/api/users')  # 注册用户部门关联API
     app.register_blueprint(campus_api, url_prefix='/api/campuses')  # 注册校区管理API
     app.register_blueprint(visitor_api, url_prefix='/api/visitors')  # 注册访客管理API
+    app.register_blueprint(visitor_log_api, url_prefix='/api/visitor_logs')  # 注册访客记录管理API
