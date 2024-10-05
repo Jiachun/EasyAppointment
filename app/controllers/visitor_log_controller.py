@@ -327,7 +327,10 @@ class VisitorLogController:
 
         # 如果有访问时间的条件
         if filters.get('start_time') and filters.get('end_date'):
-            query = query.filter(VisitorLog.visit_time.between(string_to_datetime(filters['start_time']), string_to_datetime(filters['end_date'])))
+            query = query.filter(
+                VisitorLog.visit_time >= string_to_datetime(filters['start_time']),
+                VisitorLog.visit_time < string_to_datetime(filters['end_date'])
+            )
 
         # 如果有访客类型的条件
         if filters.get('visit_type'):
