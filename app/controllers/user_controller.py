@@ -185,3 +185,50 @@ class UserController:
             return {'message': '用户删除成功'}, 200
 
         return {'error': '用户未找到'}, 404
+
+
+    @staticmethod
+    def search_users(filters, page=1, per_page=10):
+        """检索用户信息"""
+
+        # 创建查询对象
+        query = User.query
+
+        # 如果有用户名的条件
+        if filters.get('username'):
+            query = query.filter(User.username.contains(filters['username']))
+
+        # 如果有姓名的条件
+        if filters.get('name'):
+            query = query.filter(User.name.contains(filters['name']))
+
+        # 如果有手机号码的条件
+        if filters.get('phone_number'):
+            query = query.filter(User.phone_number.contains(filters['phone_number']))
+
+        # 如果有性别的条件
+        if filters.get('gender'):
+            query = query.filter(User.gender == filters['gender'])
+
+        # 如果有证件类型的条件
+        if filters.get('id_type'):
+            query = query.filter(User.id_type == filters['id_type'])
+
+        # 如果有证件号码的条件
+        if filters.get('id_number'):
+            query = query.filter(User.id_number.contains(filters['id_number']))
+
+        # 如果有激活状态的条件
+        if filters.get('is_active'):
+            query = query.filter(User.is_active==filters['is_active'])
+
+        # 分页
+        paginated_users = query.filter(User.is_deleted==False).paginate(page=page, per_page=per_page, error_out=False)
+
+        # 返回分页后的数据、总页数、当前页和每页记录数
+        return {
+            "users": [user.to_dict() for user in paginated_users.items],
+            "total_pages": paginated_users.pages,
+            "current_page": page,
+            "per_page": per_page
+        }, 200

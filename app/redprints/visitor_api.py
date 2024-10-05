@@ -10,7 +10,7 @@
 
 from flask import Blueprint, jsonify, request
 from app.controllers import VisitorController
-
+from app.models import Visitor
 
 visitor_api = Blueprint('visitor_api', __name__)
 
@@ -51,4 +51,14 @@ def update_visitor(visitor_id):
 def delete_visitor(visitor_id):
     """根据访客ID删除访客的 API 接口"""
     response, status_code = VisitorController.delete_visitor(visitor_id)
+    return jsonify(response), status_code
+
+
+@visitor_api.route('/search', methods=['GET'])
+def search_visitors():
+    """检索访客信息的 API 接口"""
+    data = request.json
+    page = int(request.args.get('page', 1))  # 默认为第1页
+    per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
+    response, status_code = VisitorController.search_visitors(data, page, per_page)
     return jsonify(response), status_code

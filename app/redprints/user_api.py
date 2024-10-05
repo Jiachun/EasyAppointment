@@ -66,3 +66,13 @@ def get_visitors(user_id):
     """获取指定用户所有访客信息的 API 接口"""
     response, status_code = VisitorController.get_visitors_by_user(user_id)
     return jsonify(response), status_code
+
+
+@user_api.route('/search', methods=['GET'])
+def search_users():
+    """检索用户信息的 API 接口"""
+    data = request.json
+    page = int(request.args.get('page', 1))  # 默认为第1页
+    per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
+    response, status_code = UserController.search_users(data, page, per_page)
+    return jsonify(response), status_code

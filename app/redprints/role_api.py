@@ -52,3 +52,13 @@ def delete_role(role_id):
     """根据角色ID删除角色的 API 接口"""
     response, status_code = RoleController.delete_role(role_id)
     return jsonify(response), status_code
+
+
+@role_api.route('/search', methods=['GET'])
+def search_roles():
+    """检索角色信息的 API 接口"""
+    data = request.json
+    page = int(request.args.get('page', 1))  # 默认为第1页
+    per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
+    response, status_code = RoleController.search_roles(data, page, per_page)
+    return jsonify(response), status_code

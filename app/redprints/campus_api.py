@@ -51,3 +51,13 @@ def delete_campus(campus_id):
     """根据校区ID删除校区的 API 接口"""
     response, status_code = CampusController.delete_campus(campus_id)
     return jsonify(response), status_code
+
+
+@campus_api.route('/search', methods=['GET'])
+def search_campuses():
+    """检索校区信息的 API 接口"""
+    data = request.json
+    page = int(request.args.get('page', 1))  # 默认为第1页
+    per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
+    response, status_code = CampusController.search_campuses(data, page, per_page)
+    return jsonify(response), status_code

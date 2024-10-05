@@ -195,3 +195,42 @@ class VisitorController:
             return {'message': '访客删除成功'}, 200
 
         return {'error': '访客未找到'}, 404
+
+
+    @staticmethod
+    def search_visitors(filters, page=1, per_page=10):
+        """检索访客信息"""
+
+        # 创建查询对象
+        query = Visitor.query
+
+        # 如果有姓名的条件
+        if filters.get('name'):
+            query = query.filter(Visitor.name.contains(filters['name']))
+
+        # 如果有手机号码的条件
+        if filters.get('phone_number'):
+            query = query.filter(Visitor.phone_number.contains(filters['phone_number']))
+
+        # 如果有性别的条件
+        if filters.get('gender'):
+            query = query.filter(Visitor.gender == filters['gender'])
+
+        # 如果有证件类型的条件
+        if filters.get('id_type'):
+            query = query.filter(Visitor.id_type == filters['id_type'])
+
+        # 如果有证件号码的条件
+        if filters.get('id_number'):
+            query = query.filter(Visitor.id_number.contains(filters['id_number']))
+
+        # 分页
+        paginated_visitors = query.filter(Visitor.is_deleted==False).paginate(page=page, per_page=per_page, error_out=False)
+
+        # 返回分页后的数据、总页数、当前页和每页记录数
+        return {
+            "users": [visitor.to_dict() for visitor in paginated_visitors.items],
+            "total_pages": paginated_visitors.pages,
+            "current_page": page,
+            "per_page": per_page
+        }, 200

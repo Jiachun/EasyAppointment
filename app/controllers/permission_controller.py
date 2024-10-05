@@ -117,3 +117,25 @@ class PermissionController:
 
         return {'error': '权限未找到'}, 404
 
+
+    @staticmethod
+    def search_permissions(filters, page=1, per_page=10):
+        """检索权限信息"""
+
+        # 创建查询对象
+        query = Permission.query
+
+        # 如果有角色名称的条件
+        if filters.get('name'):
+            query = query.filter(Permission.name.contains(filters['name']))
+
+        # 分页
+        paginated_permissions = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # 返回分页后的数据、总页数、当前页和每页记录数
+        return {
+            "users": [permission.to_dict() for permission in paginated_permissions.items],
+            "total_pages": paginated_permissions.pages,
+            "current_page": page,
+            "per_page": per_page
+        }, 200

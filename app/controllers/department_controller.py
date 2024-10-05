@@ -144,3 +144,29 @@ class DepartmentController:
 
         return {'error': '部门未找到'}, 404
 
+
+    @staticmethod
+    def search_departments(filters, page=1, per_page=10):
+        """检索部门信息"""
+
+        # 创建查询对象
+        query = Department.query
+
+        # 如果有部门编号的条件
+        if filters.get('code'):
+            query = query.filter(Department.name.contains(filters['code']))
+
+        # 如果有部门名称的条件
+        if filters.get('name'):
+            query = query.filter(Department.name.contains(filters['name']))
+
+        # 分页
+        paginated_departments = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # 返回分页后的数据、总页数、当前页和每页记录数
+        return {
+            "users": [department.to_dict() for department in paginated_departments.items],
+            "total_pages": paginated_departments.pages,
+            "current_page": page,
+            "per_page": per_page
+        }, 200

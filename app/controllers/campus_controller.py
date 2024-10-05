@@ -113,3 +113,25 @@ class CampusController:
 
         return {'error': '校区未找到'}, 404
 
+
+    @staticmethod
+    def search_campuses(filters, page=1, per_page=10):
+        """检索校区信息"""
+
+        # 创建查询对象
+        query = Campus.query
+
+        # 如果有校区名称的条件
+        if filters.get('name'):
+            query = query.filter(Campus.name.contains(filters['name']))
+
+        # 分页
+        paginated_campuses = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # 返回分页后的数据、总页数、当前页和每页记录数
+        return {
+            "users": [campus.to_dict() for campus in paginated_campuses.items],
+            "total_pages": paginated_campuses.pages,
+            "current_page": page,
+            "per_page": per_page
+        }, 200

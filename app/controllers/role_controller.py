@@ -114,3 +114,25 @@ class RoleController:
 
         return {'error': '角色未找到'}, 404
 
+
+    @staticmethod
+    def search_roles(filters, page=1, per_page=10):
+        """检索角色信息"""
+
+        # 创建查询对象
+        query = Role.query
+
+        # 如果有角色名称的条件
+        if filters.get('name'):
+            query = query.filter(Role.name.contains(filters['name']))
+
+        # 分页
+        paginated_roles = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # 返回分页后的数据、总页数、当前页和每页记录数
+        return {
+            "users": [role.to_dict() for role in paginated_roles.items],
+            "total_pages": paginated_roles.pages,
+            "current_page": page,
+            "per_page": per_page
+        }, 200

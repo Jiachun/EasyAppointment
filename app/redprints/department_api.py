@@ -52,3 +52,13 @@ def delete_department(department_id):
     """根据部门ID删除部门的 API 接口"""
     response, status_code = DepartmentController.delete_department(department_id)
     return jsonify(response), status_code
+
+
+@department_api.route('/search', methods=['GET'])
+def search_departments():
+    """检索部门信息的 API 接口"""
+    data = request.json
+    page = int(request.args.get('page', 1))  # 默认为第1页
+    per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
+    response, status_code = DepartmentController.search_departments(data, page, per_page)
+    return jsonify(response), status_code
