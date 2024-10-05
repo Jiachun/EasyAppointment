@@ -31,6 +31,7 @@ class VisitorLog(db.Model):
     approver = Column(String(100), nullable=True)  # 审批人
     approval_time = Column(DateTime, nullable=True)  # 审批时间
     is_approved = Column(Boolean, nullable=True)  # 是否审批通过
+    is_cancelled = Column(Boolean, nullable=True)  # 是否取消
     is_deleted = Column(Boolean, default=False)  # 是否删除
     created_at = Column(DateTime, default=datetime.now())  # 记录创建时间
     updated_at = Column(DateTime, default=datetime.now(), onupdate=datetime.now())  # 记录更新时间
@@ -55,6 +56,7 @@ class VisitorLog(db.Model):
             "approver": self.approver,
             "approval_time": self.approval_time,
             "is_approved": self.is_approved,
+            "is_cancelled": self.is_cancelled,
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }

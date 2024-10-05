@@ -19,7 +19,7 @@ class VisitorLogController:
         """获取所有访客记录"""
 
         # 分页
-        paginated_visitor_logs = VisitorLog.query.paginate(page=page, per_page=per_page, error_out=False)
+        paginated_visitor_logs = VisitorLog.query.filter_by(is_deleted=False).paginate(page=page, per_page=per_page, error_out=False)
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
@@ -33,7 +33,7 @@ class VisitorLogController:
     @staticmethod
     def get_visitor_log_by_id(visitor_log_id):
         """根据ID获取访客记录"""
-        visitor_log = VisitorLog.query.get(visitor_log_id)
+        visitor_log = VisitorLog.query.filter_by(id=visitor_log_id, is_deleted=False).first()
         if visitor_log:
             return visitor_log.to_dict(), 200
         return {'error': '访客记录未找到'}, 404
@@ -111,6 +111,7 @@ class VisitorLogController:
             is_approved=None,
             approval_time=None,
             entry_time=None,
+            is_cancelled=False,
             is_deleted=False,
             created_at=datetime.now(),
             updated_at=datetime.now()
@@ -139,6 +140,10 @@ class VisitorLogController:
         # 已审批的访客记录无法修改
         if visitor_log.is_approved is not None:
             return {'error': '已审批的访客记录无法修改'}, 400
+
+        # 已取消的访客记录无法修改
+        if visitor_log.is_cancelled:
+            return {'error': '已取消的访客记录无法修改'}, 400
 
         # 校验访客类型，因公访问、因私访问、社会公众
         if 'visit_type' not in data:

@@ -30,7 +30,7 @@ class VisitorController:
         """获取所有访客信息"""
 
         # 分页
-        paginated_visitors = Visitor.query.paginate(page=page, per_page=per_page, error_out=False)
+        paginated_visitors = Visitor.query.filter_by(is_deleted=False).paginate(page=page, per_page=per_page, error_out=False)
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
