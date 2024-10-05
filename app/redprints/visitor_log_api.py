@@ -52,3 +52,13 @@ def delete_visitor_log(visitor_log_id):
     """根据访客记录ID删除访客的 API 接口"""
     response, status_code = VisitorLogController.delete_visitor_log(visitor_log_id)
     return jsonify(response), status_code
+
+
+@visitor_log_api.route('/search', methods=['GET'])
+def search_visitors():
+    """检索访客记录的 API 接口"""
+    data = request.json
+    page = int(request.args.get('page', 1))  # 默认为第1页
+    per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
+    response, status_code = VisitorLogController.search_visitor_logs(data, page, per_page)
+    return jsonify(response), status_code

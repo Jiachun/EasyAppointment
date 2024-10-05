@@ -17,7 +17,7 @@ class Visitor(db.Model):
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 访客ID
     name = Column(String(50), nullable=False)  # 姓名
-    gender = Column(String(10), nullable=True)  # 性别
+    gender = Column(String(10), nullable=False)  # 性别
     id_type = Column(String(50), nullable=False)  # 证件类型
     id_number = Column(String(100), nullable=False)  # 证件号码
     phone_number = Column(String(20), nullable=False)  # 手机号码

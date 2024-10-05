@@ -8,10 +8,10 @@
 """
 
 from datetime import datetime
-from app.models import VisitorLog, Campus, Department
+from app.models import VisitorLog, Campus, Department, User
 from extensions.db import db
-from utils.validate_utils import validate_visit_type, validate_name, validate_license_plate
-from utils.time_utils import compare_time_strings, is_time_before_now, is_time_within_three_days_future, are_times_on_same_day
+from utils.validate_utils import validate_visit_type, validate_name, validate_license_plate, validate_gender, validate_id_type, validate_id_number, validate_phone_number
+from utils.time_utils import compare_time_strings, is_time_before_now, is_time_within_three_days_future, are_times_on_same_day, string_to_datetime
 
 class VisitorLogController:
     @staticmethod
@@ -42,6 +42,40 @@ class VisitorLogController:
     @staticmethod
     def create_visitor_log(data):
         """创建访客记录"""
+
+        # 校验证件类型是否正确
+        if 'visitor_id_type' not in data:
+            return {'error': '访客证件类型不能为空'}, 400
+        if not validate_id_type(data['visitor_id_type']):
+            return {'error': '访客证件类型有误'}, 400
+
+        # 校验证件号码是否有效
+        if 'visitor_id_number' not in data:
+            return {'error': '访客证件号码不能为空'}, 400
+        if not validate_id_number(data['visitor_id_type'], data['visitor_id_number']):
+            return {'error': '访客证件号码不合法'}, 400
+
+        # 校验手机号码是否有效
+        if 'visitor_phone_number' not in data:
+            return {'error': '访客手机号码不能为空'}, 400
+        if not validate_phone_number(data['visitor_phone_number']):
+            return {'error': '访客手机号码格式有误'}, 400
+
+        # 校验用户是否存在
+        if not User.query.filter_by(id_number=data['visitor_id_number'], phone_number=data['visitor_phone_number'], is_deleted=False).first():
+            return {'error': '该用户不存在'}, 400
+
+        # 校验访客姓名格式是否正确
+        if 'visitor_name' not in data:
+            return {'error': '访客姓名不能为空'}, 400
+        if not validate_name(data['visitor_name']):
+            return {'error': '访客姓名格式有误'}, 400
+
+        # 校验访客性别是否正确
+        if 'visitor_gender' not in data:
+            return {'error': '访客性别不能为空'}, 400
+        if not validate_gender(data['visitor_gender']):
+            return {'error': '访客性别格式有误'}, 400
 
         # 校验访客类型，因公访问、因私访问、社会公众
         if 'visit_type' not in data:
@@ -101,6 +135,11 @@ class VisitorLogController:
             visit_time=data['visit_time'],
             leave_time=data['leave_time'],
             campus=data['campus'],
+            visitor_name=data['visitor_name'],
+            visitor_gender=data['visitor_gender'],
+            visitor_phone_number=data['visitor_phone_number'],
+            visitor_id_type=data['visitor_id_type'],
+            visitor_id_number=data['visitor_id_number'],
             visitor_org=data.get('visitor_org', ''),
             visited_person_name=data.get('visited_person_name', ''),
             visited_person_org=data.get('visited_person_org', ''),
@@ -144,6 +183,40 @@ class VisitorLogController:
         # 已取消的访客记录无法修改
         if visitor_log.is_cancelled:
             return {'error': '已取消的访客记录无法修改'}, 400
+
+        # 校验证件类型是否正确
+        if 'visitor_id_type' not in data:
+            return {'error': '访客证件类型不能为空'}, 400
+        if not validate_id_type(data['visitor_id_type']):
+            return {'error': '访客证件类型有误'}, 400
+
+        # 校验证件号码是否有效
+        if 'visitor_id_number' not in data:
+            return {'error': '访客证件号码不能为空'}, 400
+        if not validate_id_number(data['visitor_id_type'], data['visitor_id_number']):
+            return {'error': '访客证件号码不合法'}, 400
+
+        # 校验手机号码是否有效
+        if 'visitor_phone_number' not in data:
+            return {'error': '访客手机号码不能为空'}, 400
+        if not validate_phone_number(data['visitor_phone_number']):
+            return {'error': '访客手机号码格式有误'}, 400
+
+        # 校验用户是否存在
+        if not User.query.filter_by(id_number=data['visitor_id_number'], phone_number=data['visitor_phone_number'], is_deleted=False).first():
+            return {'error': '该用户不存在'}, 400
+
+        # 校验访客姓名格式是否正确
+        if 'visitor_name' not in data:
+            return {'error': '访客姓名不能为空'}, 400
+        if not validate_name(data['visitor_name']):
+            return {'error': '访客姓名格式有误'}, 400
+
+        # 校验访客性别是否正确
+        if 'visitor_gender' not in data:
+            return {'error': '访客性别不能为空'}, 400
+        if not validate_gender(data['visitor_gender']):
+            return {'error': '访客性别格式有误'}, 400
 
         # 校验访客类型，因公访问、因私访问、社会公众
         if 'visit_type' not in data:
@@ -201,6 +274,11 @@ class VisitorLogController:
         visitor_log.visit_time = data['visit_time']
         visitor_log.leave_time = data['leave_time']
         visitor_log.campus = data['campus']
+        visitor_log.visitor_name = data['visitor_name']
+        visitor_log.visitor_gender = data['visitor_gender']
+        visitor_log.visitor_phone_number = data['visitor_phone_number']
+        visitor_log.visitor_id_type = data['visitor_id_type']
+        visitor_log.visitor_id_number = data['visitor_id_number']
         visitor_log.visitor_org = data.get('visitor_org', '')
         visitor_log.visited_person_name = data.get('visited_person_name', '')
         visitor_log.visited_person_org = data.get('visited_person_org', '')
@@ -238,3 +316,62 @@ class VisitorLogController:
             return {'message': '访客记录删除成功'}, 200
 
         return {'error': '访客记录未找到'}, 404
+
+
+    @staticmethod
+    def search_visitor_logs(filters, page=1, per_page=10):
+        """检索访客记录"""
+
+        # 创建查询对象
+        query = VisitorLog.query
+
+        # 如果有访问时间的条件
+        if filters.get('start_time') and filters.get('end_date'):
+            query = query.filter(VisitorLog.visit_time.between(string_to_datetime(filters['start_time']), string_to_datetime(filters['end_date'])))
+
+        # 如果有访客类型的条件
+        if filters.get('visit_type'):
+            query = query.filter(VisitorLog.visit_type == filters['visit_type'])
+
+        # 如果有校区名称的条件
+        if filters.get('campus'):
+            query = query.filter(VisitorLog.campus == filters['campus'])
+
+        # 如果有访客所属单位的条件
+        if filters.get('visitor_org'):
+            query = query.filter(VisitorLog.visitor_org.contains(filters['visitor_org']))
+
+        # 如果有访客姓名的条件
+        if filters.get('visitor_name'):
+            query = query.filter(VisitorLog.visitor_name.contains(filters['visitor_name']))
+
+        # 如果有被访人姓名的条件
+        if filters.get('visited_person_name'):
+            query = query.filter(VisitorLog.visited_person_name.contains(filters['visited_person_name']))
+
+        # 如果有被访人部门的条件
+        if filters.get('visited_person_org'):
+            query = query.filter(VisitorLog.visited_person_org.contains(filters['visited_person_org']))
+
+        # 如果有车牌号码的条件
+        if filters.get('license_plate'):
+            query = query.filter(VisitorLog.license_plate.contains(filters['license_plate']))
+
+        # 如果有是否审批通过的条件
+        if filters.get('is_approved'):
+            query = query.filter(VisitorLog.is_approved == filters['is_approved'])
+
+        # 如果有是否取消的条件
+        if filters.get('is_cancelled'):
+            query = query.filter(VisitorLog.is_cancelled == filters['is_cancelled'])
+
+        # 分页
+        paginated_visitor_logs = query.filter(VisitorLog.is_deleted==False).paginate(page=page, per_page=per_page, error_out=False)
+
+        # 返回分页后的数据、总页数、当前页和每页记录数
+        return {
+            "users": [visitor_log.to_dict() for visitor_log in paginated_visitor_logs.items],
+            "total_pages": paginated_visitor_logs.pages,
+            "current_page": page,
+            "per_page": per_page
+        }, 200
