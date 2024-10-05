@@ -14,19 +14,31 @@ from utils.validate_utils import validate_phone_number, validate_name, validate_
 
 class VisitorController:
     @staticmethod
-    def get_visitors_by_user(data):
-        """获取用户的所有访客信息"""
-
-        if 'user_id' not in data:
-            return {'error': '用户不能为空'}, 400
+    def get_visitors_by_user(user_id):
+        """获取指定用户的所有访客信息"""
 
         # 查找现有的用户信息
-        user = User.query.filter_by(id=data['user_id'], is_deleted=False).first()
+        user = User.query.filter_by(id=user_id, is_deleted=False).first()
 
         if not user:
             return {'error': '用户未找到'}, 404
 
         return {"visitors": [visitor.to_dict() for visitor in user.visitors]}, 200
+
+    @staticmethod
+    def get_all_visitors(page=1, per_page=10):
+        """获取所有访客信息"""
+
+        # 分页
+        paginated_visitors = Visitor.query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # 返回分页后的数据、总页数、当前页和每页记录数
+        return {
+            "visitors": [visitor.to_dict() for visitor in paginated_visitors.items],
+            "total_pages": paginated_visitors.pages,
+            "current_page": page,
+            "per_page": per_page
+        }, 200
 
 
     @staticmethod

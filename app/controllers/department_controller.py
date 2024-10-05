@@ -7,11 +7,24 @@
 # 描述: 部门信息逻辑控制器
 """
 
-from app.models import Department
+from app.models import Department, User
 from extensions.db import db
 
 
 class DepartmentController:
+    @staticmethod
+    def get_departments_by_user(user_id):
+        """获取指定用户的所有访客信息"""
+
+        # 查找现有的用户信息
+        user = User.query.filter_by(id=user_id, is_deleted=False).first()
+
+        if not user:
+            return {'error': '用户未找到'}, 404
+
+        return {"departments": [department.to_dict() for department in user.departments]}, 200
+
+
     @staticmethod
     def get_all_departments(page=1, per_page=10):
         """获取所有部门信息"""

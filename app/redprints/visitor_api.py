@@ -17,9 +17,10 @@ visitor_api = Blueprint('visitor_api', __name__)
 
 @visitor_api.route('/', methods=['GET'])
 def get_visitors():
-    """获取制定用户所有访客信息的 API 接口"""
-    data = request.json
-    response, status_code = VisitorController.get_visitors_by_user(data)
+    """获取所有访客信息的 API 接口"""
+    page = int(request.args.get('page', 1))  # 默认为第1页
+    per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
+    response, status_code = VisitorController.get_all_visitors(page, per_page)
     return jsonify(response), status_code
 
 

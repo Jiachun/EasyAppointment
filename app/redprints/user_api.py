@@ -9,7 +9,7 @@
 
 
 from flask import Blueprint, jsonify, request
-from app.controllers import UserController
+from app.controllers import UserController, VisitorController, DepartmentController
 
 
 user_api = Blueprint('user_api', __name__)
@@ -51,4 +51,18 @@ def update_user(user_id):
 def delete_user(user_id):
     """根据用户ID删除用户的 API 接口"""
     response, status_code = UserController.delete_user(user_id)
+    return jsonify(response), status_code
+
+
+@user_api.route('/<int:user_id>/departments', methods=['GET'])
+def get_departments(user_id):
+    """获取指定用户所有访客信息的 API 接口"""
+    response, status_code = DepartmentController.get_departments_by_user(user_id)
+    return jsonify(response), status_code
+
+
+@user_api.route('/<int:user_id>/visitors', methods=['GET'])
+def get_visitors(user_id):
+    """获取指定用户所有访客信息的 API 接口"""
+    response, status_code = VisitorController.get_visitors_by_user(user_id)
     return jsonify(response), status_code
