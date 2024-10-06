@@ -9,12 +9,9 @@
 
 
 import os
-from dotenv import load_dotenv
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-
-
-load_dotenv()
+from app.config import Config
 
 
 def generate_key_pair(keys_directory):
@@ -41,7 +38,7 @@ def generate_key_pair(keys_directory):
 
 def load_public_key_from_file():
     # 从文件加载公钥
-    public_key_path = os.getenv('PUBLIC_KEY_PATH')
+    public_key_path = Config.PUBLIC_KEY_PATH
     try:
         with open(public_key_path, 'rb') as f:
             return RSA.import_key(f.read())
@@ -53,7 +50,7 @@ def load_public_key_from_file():
 
 def load_private_key_from_file():
     # 从文件加载私钥
-    private_key_path = os.getenv('PRIVATE_KEY_PATH')
+    private_key_path = Config.PRIVATE_KEY_PATH
     try:
         with open(private_key_path, 'rb') as f:
             return RSA.import_key(f.read())
@@ -65,7 +62,7 @@ def load_private_key_from_file():
 
 def load_public_key_from_env():
     # 从环境变量加载公钥
-    public_key_data = os.getenv('PUBLIC_KEY')
+    public_key_data = Config.PUBLIC_KEY
     if public_key_data:
         return RSA.import_key(public_key_data)
     else:
@@ -74,7 +71,7 @@ def load_public_key_from_env():
 
 def load_private_key_from_env():
     # 从环境变量加载私钥
-    private_key_data = os.getenv('PRIVATE_KEY')
+    private_key_data = Config.PRIVATE_KEY
     if private_key_data:
         return RSA.import_key(private_key_data)
     else:
@@ -95,16 +92,15 @@ def decrypt_message(private_key, encrypted_message):
 
 def encrypt_content(content):
     # 加载公钥对数据进行加密
-    if os.getenv('PUBLIC_KEY'):
+    if Config.PUBLIC_KEY:
         return encrypt_message(load_public_key_from_env(), content.encode('utf-8'))
     else:
-        print(1)
         return encrypt_message(load_public_key_from_file(), content.encode('utf-8'))
 
 
 def decrypt_content(content):
     # 加载私钥对数据进行解密
-    if os.getenv('PRIVATE_KEY'):
+    if Config.PRIVATE_KEY:
         return decrypt_message(load_private_key_from_env(), content).decode('utf-8')
     else:
         return decrypt_message(load_private_key_from_file(), content).decode('utf-8')

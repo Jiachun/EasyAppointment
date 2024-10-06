@@ -10,8 +10,8 @@
 from datetime import datetime
 from app.models import VisitorLog, Campus, Department, User
 from extensions.db import db
-from utils.validate_utils import validate_visit_type, validate_name, validate_license_plate, validate_gender, validate_id_type, validate_id_number, validate_phone_number
-from utils.time_utils import compare_time_strings, is_time_before_now, is_time_within_three_days_future, are_times_on_same_day, string_to_datetime
+from app.utils import validate_visit_type, validate_name, validate_license_plate, validate_gender, validate_id_type, validate_id_number, validate_phone_number
+from app.utils import compare_time_strings, is_time_before_now, is_time_within_three_days_future, are_times_on_same_day, string_to_datetime
 
 class VisitorLogController:
     @staticmethod

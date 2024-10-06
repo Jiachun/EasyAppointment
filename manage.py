@@ -1,11 +1,8 @@
 import click
-import os
 from flask_migrate import Migrate
 from app import create_app
 from extensions.db import db
-from utils.crypto_utils import generate_key_pair
-from app.models import User, Role, Permission, Department, user_role, user_department, role_permission, campus, visitor, visitor_log
-
+from app.utils.crypto_utils import generate_key_pair
 
 app = create_app()
 
