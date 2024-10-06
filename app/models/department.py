@@ -10,7 +10,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from extensions.db import db
-from app.models import user_department
+from .user_department import user_department
 
 
 class Department(db.Model):
@@ -26,9 +26,10 @@ class Department(db.Model):
     users = relationship('User', secondary=user_department, back_populates='departments')
 
     # 自引用关系，parent 指向上级部门
+    # noinspection PyTypeChecker
     parent = relationship(
         'Department',
-        remote_side=[Column('id')],
+        remote_side=[id],
         back_populates = 'children',
         lazy='select'  # 使用懒加载，默认值 'select'
     )
@@ -42,7 +43,7 @@ class Department(db.Model):
     )
 
     def __repr__(self):
-        return f'<Role {self.name}>'
+        return f'<Department {self.name}>'
 
     def to_dict(self):
         return {

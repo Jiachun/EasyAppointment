@@ -7,13 +7,12 @@
 # 描述: 角色权限关联模型文件。
 """
 
-from sqlalchemy import Column, Integer, ForeignKey, Table, UniqueConstraint
+from sqlalchemy import Column, Integer, ForeignKey, Table
 from extensions.db import db
 
 
 # 角色和权限的多对多关系表
-role_permission = Table('role_permission', db.Model.metadata,
+role_permission = Table('role_permission', db.metadata,
     Column('role_id', Integer, ForeignKey('roles.id')),
     Column('permission_id', Integer, ForeignKey('permissions.id')),
-    UniqueConstraint('role_id', 'permission_id', name='uq_role_permission')
 )

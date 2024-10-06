@@ -10,7 +10,8 @@
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from extensions.db import db
-from app.models import user_role, user_department
+from .user_role import user_role
+from .user_department import user_department
 
 
 # 用户模型

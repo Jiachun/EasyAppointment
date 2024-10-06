@@ -7,13 +7,12 @@
 # 描述: 用户部门关联模型文件。
 """
 
-from sqlalchemy import Column, Integer, ForeignKey, Table, UniqueConstraint
+from sqlalchemy import Column, Integer, ForeignKey, Table
 from extensions.db import db
 
 
 # 用户和部门的多对多关系表
-user_department = Table('user_department', db.Model.metadata,
+user_department = Table('user_department', db.metadata,
     Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
     Column('department_id', Integer, ForeignKey('departments.id'), primary_key=True),
-    UniqueConstraint('user_id', 'department_id', name='uq_user_department')
 )

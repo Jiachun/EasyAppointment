@@ -10,7 +10,8 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from extensions.db import db
-from app.models import role_permission, user_role
+from .role_permission import role_permission
+from .user_role import user_role
 
 
 # 角色模型
