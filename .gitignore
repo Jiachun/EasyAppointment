@@ -4,3 +4,8 @@
 # 忽略密钥文件
 /keys/private_key.pem
 /keys/public_key.pem
+venv/
+.VENV/
+migrations/
+__pycache__/
+.idea/
