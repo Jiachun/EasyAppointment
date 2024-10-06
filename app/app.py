@@ -1,11 +1,9 @@
 import os
 from flask import Flask
 from app.config import DevelopmentConfig, ProductionConfig
-from extensions.db import init_db, init_redis
+from extensions.db import init_db
 from app.redprints import register_redprints
 from app.blueprints import register_blueprints
-from app.models import User, Role, Permission, Department, user_role, user_department, role_permission, campus, visitor, visitor_log
-
 
 
 def create_app():
@@ -19,9 +17,6 @@ def create_app():
 
     # 初始化数据库
     init_db(app)
-
-    # 初始化 Redis
-    init_redis(app)
 
     # 注册蓝图和红图
     register_redprints(app)
