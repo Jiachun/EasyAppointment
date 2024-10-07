@@ -12,11 +12,11 @@ import random
 import string
 
 
-def generate_username(length=20):
+def generate_random_string(length=20):
     # 字符集：包含大小写字母、数字、下划线
     characters = string.ascii_letters + string.digits + '_'
 
-    # 随机选择字符并生成指定长度的用户名
+    # 随机选择字符并生成指定长度的字符串
     username = ''.join(random.choices(characters, k=length))
 
     return username
