@@ -46,3 +46,12 @@ def set_password(current_user):
     data = request.json
     response, status_code = AuthController.set_password(data)
     return jsonify(response), status_code
+
+
+@auth_api.route('/unbind', methods=['POST'])
+@token_required
+def unbind():
+    """用户解绑的 API 接口"""
+    data = request.json
+    response, status_code = AuthController.unbind_user(data)
+    return jsonify(response), status_code

@@ -149,3 +149,33 @@ class AuthController:
         redis_client.delete(user.id)
 
         return {'message': '密码已成功更新'}, 200
+
+
+    @staticmethod
+    def unbind_user(data):
+        """解绑用户"""
+
+        # 校验 openid 是否为空
+        if 'openid' not in data:
+            return {'error': '缺少 openid 参数'}, 400
+
+        # 查找用户并解绑
+        user = User.query.filter_by(openid=data['openid']).first()
+
+        if not user:
+            return {'error': '用户不存在'}, 400
+
+        # 清除 openid
+        user.openid = None
+
+        # 提交数据库更新
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+
+        # 清除用户的 Token（要求重新登录）
+        redis_client.delete(user.id)
+
+        return {'message': '用户解绑成功'}, 200
