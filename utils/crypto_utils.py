@@ -6,8 +6,7 @@
 # 版本: 1.0
 # 描述: 实现了数据的非对称加密解密功能。
 """
-
-
+import base64
 import os
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
@@ -78,30 +77,33 @@ def load_private_key_from_env():
         raise EnvironmentError(f"环境变量 PRIVATE_KEY 中未找到私钥数据")
 
 
-def encrypt_message(public_key, message):
+def encrypt_message(data, public_key):
     # 使用公钥加密消息
     cipher_rsa = PKCS1_OAEP.new(public_key)
-    return cipher_rsa.encrypt(message.encode('utf-8'))
+    encrypted_data = cipher_rsa.encrypt(data.encode('utf-8'))
+    return base64.b64encode(encrypted_data).decode('utf-8')
 
 
-def decrypt_message(private_key, encrypted_message):
+def decrypt_message(encrypted_data, private_key):
     # 使用私钥解密消息
     cipher_rsa = PKCS1_OAEP.new(private_key)
-    return cipher_rsa.decrypt(encrypted_message).decode('utf-8')
+    encrypted_data = base64.b64decode(encrypted_data)
+    decrypted_data = cipher_rsa.decrypt(encrypted_data)
+    return decrypted_data.decode('utf-8')
 
 
-def encrypt_content(content):
+def encrypt_content(data):
     # 加载公钥对数据进行加密
     if Config.PUBLIC_KEY:
-        return encrypt_message(load_public_key_from_env(), content)
+        return encrypt_message(data, load_public_key_from_env())
     else:
-        return encrypt_message(load_public_key_from_file(), content)
+        return encrypt_message(data, load_public_key_from_file())
 
 
-def decrypt_content(content):
+def decrypt_content(data):
     # 加载私钥对数据进行解密
     if Config.PRIVATE_KEY:
-        return decrypt_message(load_private_key_from_env(), content)
+        return decrypt_message(data, load_private_key_from_env())
     else:
-        return decrypt_message(load_private_key_from_file(), content)
+        return decrypt_message(data, load_private_key_from_file())
 
