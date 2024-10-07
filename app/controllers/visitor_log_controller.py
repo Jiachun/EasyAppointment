@@ -122,12 +122,13 @@ class VisitorLogController:
                 return {'error': '被访人部门名称有误'}, 400
 
             # 校验访问事由
-            if 'reason' not in data or len(data['reason']) < 2:
+            if 'reason' not in data or not data['reason'] or len(data['reason']) < 2:
                 return {'error': '访问事由不能为空且至少为2个字符'}, 400
 
             # 校验车牌格式
-            if 'license_plate' in data and not validate_license_plate(data['license_plate']):
-                return {'error': '车牌格式有误'}, 400
+            if 'license_plate' in data:
+                if not data['license_plate'] or not validate_license_plate(data['license_plate']):
+                    return {'error': '车牌格式有误'}, 400
 
 
         visitor_log = VisitorLog(
@@ -263,12 +264,13 @@ class VisitorLogController:
                 return {'error': '被访人部门名称有误'}, 400
 
             # 校验访问事由
-            if 'reason' not in data or len(data['reason']) < 2:
+            if 'reason' not in data or not data['reason'] or len(data['reason']) < 2:
                 return {'error': '访问事由不能为空且至少为2个字符'}, 400
 
             # 校验车牌格式
-            if 'license_plate' in data and not validate_license_plate(data['license_plate']):
-                return {'error': '车牌格式有误'}, 400
+            if 'license_plate' in data:
+                if not data['license_plate'] or not validate_license_plate(data['license_plate']):
+                    return {'error': '车牌格式有误'}, 400
 
         visitor_log.visit_type = data['visit_type']
         visitor_log.visit_time = data['visit_time']

@@ -42,7 +42,7 @@ class CampusController:
         """创建校区信息"""
 
         # 校验校区名称是否存在并有效
-        if 'name' not in data or len(data['name']) < 3:
+        if 'name' not in data or not data['name'] or len(data['name']) < 3:
             return {'error': '校区名称不能为空且至少为3个字符'}, 400
         if Campus.query.filter_by(name=data['name']).first():
             return {'error': '校区名称已存在'}, 400
@@ -68,7 +68,7 @@ class CampusController:
         """更新校区信息"""
 
         # 校验校区名称是否有效
-        if 'name' not in data or len(data['name']) < 3:
+        if 'name' not in data or not data['name'] or len(data['name']) < 3:
             return {'error': '校区名称不能为空且至少为3个字符'}, 400
         if Campus.query.filter(Campus.name==data['name'], Campus.id!=campus_id).first():
             return {'error': '校区名称已存在'}, 400

@@ -55,13 +55,13 @@ class DepartmentController:
         """创建部门信息"""
 
         # 校验部门编号是否存在并有效
-        if 'code' not in data or len(data['code']) < 2:
+        if 'code' not in data or not data['code'] or len(data['code']) < 2:
             return {'error': '部门编号不能为空且至少为2个字符'}, 400
         if Department.query.filter_by(code=data['code']).first():
             return {'error': '部门编号已存在'}, 400
 
         # 校验部门名称是否有效
-        if 'name' not in data or len(data['name']) < 2:
+        if 'name' not in data or not data['name'] or len(data['name']) < 2:
             return {'error': '部门名称不能为空且至少为2个字符'}, 400
 
         department = Department(
@@ -87,13 +87,13 @@ class DepartmentController:
         """更新部门信息"""
 
         # 校验部门编号是否有效
-        if 'code' not in data or len(data['code']) < 2:
+        if 'code' not in data or not data['code'] or len(data['code']) < 2:
             return {'error': '部门编号不能为空且至少为2个字符'}, 400
         if Department.query.filter(Department.code==data['code'], Department.id!=department_id).first():
             return {'error': '部门编号已存在'}, 400
 
         # 校验部门名称是否有效
-        if 'name' not in data or len(data['name']) < 2:
+        if 'name' not in data or not data['name'] or len(data['name']) < 2:
             return {'error': '部门名称不能为空且至少为2个字符'}, 400
 
         # 查找现有的部门信息

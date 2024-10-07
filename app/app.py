@@ -4,8 +4,6 @@ from app.config import DevelopmentConfig, ProductionConfig
 from extensions.db import init_db, init_redis
 from app.redprints import register_redprints
 from app.blueprints import register_blueprints
-from app.models import User, Role, Permission, Department, user_role, user_department, role_permission, campus, visitor, visitor_log
-
 
 
 def create_app():

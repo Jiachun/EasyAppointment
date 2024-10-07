@@ -42,7 +42,7 @@ class RoleController:
         """创建角色信息"""
 
         # 校验角色名称是否存在并有效
-        if 'name' not in data or len(data['name']) < 3:
+        if 'name' not in data or not data['name'] or len(data['name']) < 3:
             return {'error': '角色名称不能为空且至少为3个字符'}, 400
         if Role.query.filter_by(name=data['name']).first():
             return {'error': '角色名称已存在'}, 400
@@ -67,7 +67,7 @@ class RoleController:
         """更新角色信息"""
 
         # 校验角色名称是否有效
-        if 'name' not in data or len(data['name']) < 3:
+        if 'name' not in data or not data['name'] or len(data['name']) < 3:
             return {'error': '角色名称不能为空且至少为3个字符'}, 400
         if Role.query.filter(Role.name==data['name'], Role.id!=role_id).first():
             return {'error': '角色名称已存在'}, 400

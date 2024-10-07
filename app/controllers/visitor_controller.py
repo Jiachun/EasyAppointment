@@ -55,7 +55,7 @@ class VisitorController:
         """创建访客信息"""
 
         # 查找现有的用户的访客列表
-        if 'user_id' not in data:
+        if 'user_id' not in data or not data['user_id']:
             return {'error': '用户不能为空'}, 400
 
         user = User.query.filter_by(id=data['user_id'], is_deleted=False).first()

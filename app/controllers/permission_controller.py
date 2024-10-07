@@ -42,7 +42,7 @@ class PermissionController:
         """创建权限信息"""
 
         # 校验权限名称是否存在并有效
-        if 'name' not in data or len(data['name']) < 3:
+        if 'name' not in data or not data['name'] or len(data['name']) < 3:
             return {'error': '权限名称不能为空且至少为3个字符'}, 400
         if Permission.query.filter_by(name=data['name']).first():
             return {'error': '权限名称已存在'}, 400
@@ -68,7 +68,7 @@ class PermissionController:
         """更新权限信息"""
 
         # 校验权限名称是否有效
-        if 'name' not in data or len(data['name']) < 3:
+        if 'name' not in data or not data['name'] or len(data['name']) < 3:
             return {'error': '权限名称不能为空且至少为3个字符'}, 400
         if Permission.query.filter(Permission.name==data['name'], Permission.id!=permission_id).first():
             return {'error': '权限名称已存在'}, 400
