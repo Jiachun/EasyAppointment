@@ -52,7 +52,7 @@ class UserController:
             return {'error': '用户名已存在'}, 400
 
         # 校验密码是否有效
-        if 'password' not in data or not data['password']:
+        if 'password_hash' not in data or not data['password_hash']:
             return {'error': '密码不能为空'}, 400
 
         # 校验手机号码是否存在并有效

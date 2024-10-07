@@ -49,7 +49,7 @@ class CampusController:
 
         campus = Campus(
             name=data['name'],
-            description=data.get('description', ''),
+            description=data.get('description') or '',
         )
 
         # 提交数据库更新
@@ -82,7 +82,7 @@ class CampusController:
         if 'name' in data:
             campus.name = data['name']
         if 'description' in data:
-            campus.description = data['description']
+            campus.description = data.get('description') or ''
 
         # 提交数据库更新
         try:

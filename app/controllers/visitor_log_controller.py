@@ -141,12 +141,12 @@ class VisitorLogController:
             visitor_phone_number=data['visitor_phone_number'],
             visitor_id_type=data['visitor_id_type'],
             visitor_id_number=data['visitor_id_number'],
-            visitor_org=data.get('visitor_org', ''),
-            visited_person_name=data.get('visited_person_name', ''),
-            visited_person_org=data.get('visited_person_org', ''),
-            reason=data.get('reason', ''),
-            accompanying_people=data.get('accompanying_people', ''),
-            license_plate=data.get('license_plate', ''),
+            visitor_org=data.get('visitor_org') or '',
+            visited_person_name=data.get('visited_person_name') or '',
+            visited_person_org=data.get('visited_person_org') or '',
+            reason=data.get('reason') or '',
+            accompanying_people=data.get('accompanying_people') or '',
+            license_plate=data.get('license_plate') or '',
             approver=None,
             is_approved=None,
             approval_time=None,
@@ -281,12 +281,12 @@ class VisitorLogController:
         visitor_log.visitor_phone_number = data['visitor_phone_number']
         visitor_log.visitor_id_type = data['visitor_id_type']
         visitor_log.visitor_id_number = data['visitor_id_number']
-        visitor_log.visitor_org = data.get('visitor_org', '')
-        visitor_log.visited_person_name = data.get('visited_person_name', '')
-        visitor_log.visited_person_org = data.get('visited_person_org', '')
-        visitor_log.reason = data.get('reason', '')
-        visitor_log.accompanying_people = data.get('accompanying_people', '')
-        visitor_log.license_plate = data.get('license_plate', '')
+        visitor_log.visitor_org = data.get('visitor_org') or ''
+        visitor_log.visited_person_name = data.get('visited_person_name') or ''
+        visitor_log.visited_person_org = data.get('visited_person_org') or ''
+        visitor_log.reason = data.get('reason') or ''
+        visitor_log.accompanying_people = data.get('accompanying_people') or ''
+        visitor_log.license_plate = data.get('license_plate') or ''
         visitor_log.update_time = datetime.now()
 
         # 提交数据库更新

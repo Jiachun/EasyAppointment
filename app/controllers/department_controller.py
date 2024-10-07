@@ -67,8 +67,8 @@ class DepartmentController:
         department = Department(
             code=data['code'],
             name=data['name'],
-            description=data.get('description', ''),
-            parent_id=data.get('parent_id', None),
+            description=data.get('description') or '',
+            parent_id=data.get('parent_id') or None,
         )
 
         # 提交数据库更新
@@ -107,9 +107,9 @@ class DepartmentController:
         if 'name' in data:
             department.name = data['name']
         if 'description' in data:
-            department.description = data['description']
+            department.description = data.get('description') or ''
         if 'parent_id' in data:
-            department.parent_id = data['parent_id']
+            department.parent_id = data.get('parent_id') or None
 
         # 提交数据库更新
         try:

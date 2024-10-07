@@ -24,11 +24,11 @@ class AuthController:
         """用户登录认证"""
 
         # 校验用户名是否有效
-        if 'username' not in data:
+        if 'username' not in data or not data['username']:
             return {'error': '请输入用户名'}, 400
 
         # 校验密码是否有效
-        if 'password' not in data:
+        if 'password' not in data or not data['password']:
             return {'error': '请输入密码'}, 400
 
         username = data['username']
@@ -172,7 +172,7 @@ class AuthController:
         response = requests.get(url)
         data = response.json()
 
-        if 'openid' not in data:
+        if 'openid' not in data or not data['openid']:
             return {'error': '无法获取 openid'}, 400
 
         openid = data['openid']
@@ -224,7 +224,7 @@ class AuthController:
         response = requests.get(url)
         data = response.json()
 
-        if 'openid' not in data:
+        if 'openid' not in data or not data['openid']:
             return {'error': '无法获取 openid'}, 400
 
         openid = data['openid']
@@ -272,7 +272,7 @@ class AuthController:
         """解绑用户"""
 
         # 校验 openid 是否为空
-        if 'openid' not in data:
+        if 'openid' not in data or not data['openid']:
             return {'error': '缺少 openid 参数'}, 400
 
         # 查找用户并解绑

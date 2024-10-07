@@ -49,7 +49,7 @@ class PermissionController:
 
         permission = Permission(
             name=data['name'],
-            description=data.get('description', ''),
+            description=data.get('description') or '',
         )
 
         # 提交数据库更新
@@ -82,7 +82,7 @@ class PermissionController:
         if 'name' in data:
             permission.name = data['name']
         if 'description' in data:
-            permission.description = data['description']
+            permission.description = data.get('description') or '',
 
         # 提交数据库更新
         try:
