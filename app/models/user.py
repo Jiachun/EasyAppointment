@@ -54,7 +54,7 @@ class User(db.Model):
             'is_active': self.is_active,
         }
 
-    def can(self, permission_name):
+    def has_permission(self, permission_name):
         """检查用户是否具有某个权限"""
         # 遍历用户的所有角色
         for role in self.roles:

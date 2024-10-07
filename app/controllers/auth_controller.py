@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from app.config import Config
 from app.models import User
-from extensions.db import redis_client
+from extensions.db import redis_client, db
 import jwt
 
 
@@ -76,3 +76,76 @@ class AuthController:
             redis_client.set(attempts_key, 1, ex=Config.LOCK_TIME)
 
         return {'error': '用户名或密码错误'}, 401
+
+
+    @staticmethod
+    def logout(user):
+        """用户注销"""
+        try:
+            # 从 Redis 中删除用户的 Token
+            redis_client.delete(user.id)
+            return {'message': '注销成功'}, 200
+        except Exception as e:
+            return {'error': f'注销失败: {str(e)}'}, 500
+
+    @staticmethod
+    def change_password(user, data):
+        """用户修改密码"""
+        # 校验新旧密码
+        if 'old_password' not in data or 'new_password' not in data:
+            return {'error': '请提供旧密码和新密码'}, 400
+
+        old_password = data['old_password']
+        new_password = data['new_password']
+
+        # 校验旧密码是否正确
+        if not check_password_hash(user.password_hash, old_password):
+            return {'error': '旧密码不正确'}, 400
+
+        # 更新新密码
+        user.password_hash = generate_password_hash(new_password)
+
+        # 提交数据库更新
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+
+        # 清除用户的 Token（要求重新登录）
+        redis_client.delete(user.id)
+
+        return {'message': '密码修改成功，请重新登录'}, 200
+
+
+    @staticmethod
+    def set_password(data):
+        """管理员修改用户密码"""
+
+        # 获取用户ID和新密码
+        user_id = data['user_id']
+        new_password = data['new_password']
+
+        # 校验传入的数据是否完整
+        if not user_id or not new_password:
+            return {'error': '用户ID和新密码不能为空'}, 400
+
+        # 查找目标用户
+        user = User.query.get(user_id)
+        if not user:
+            return {'error': '用户不存在'}, 404
+
+        # 设置新密码
+        user.password_hash = generate_password_hash(new_password)
+
+        # 提交数据库更新
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+
+        # 清除用户的 Token（要求重新登录）
+        redis_client.delete(user.id)
+
+        return {'message': '密码已成功更新'}, 200

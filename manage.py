@@ -2,7 +2,7 @@ import click
 from flask_migrate import Migrate
 from app import create_app
 from extensions.db import db
-from app.utils.crypto_utils import generate_key_pair
+from utils import generate_key_pair
 
 app = create_app()
 

@@ -10,7 +10,7 @@
 from werkzeug.security import generate_password_hash
 from app.models import User
 from extensions.db import db
-from app.utils import validate_username, validate_phone_number, validate_name, validate_gender, validate_id_type, validate_id_number
+from utils.validate_utils import validate_username, validate_phone_number, validate_name, validate_gender, validate_id_type, validate_id_number
 
 
 class UserController:
