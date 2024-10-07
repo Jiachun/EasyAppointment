@@ -81,27 +81,27 @@ def load_private_key_from_env():
 def encrypt_message(public_key, message):
     # 使用公钥加密消息
     cipher_rsa = PKCS1_OAEP.new(public_key)
-    return cipher_rsa.encrypt(message)
+    return cipher_rsa.encrypt(message.encode('utf-8'))
 
 
 def decrypt_message(private_key, encrypted_message):
     # 使用私钥解密消息
     cipher_rsa = PKCS1_OAEP.new(private_key)
-    return cipher_rsa.decrypt(encrypted_message)
+    return cipher_rsa.decrypt(encrypted_message).decode('utf-8')
 
 
 def encrypt_content(content):
     # 加载公钥对数据进行加密
     if Config.PUBLIC_KEY:
-        return encrypt_message(load_public_key_from_env(), content.encode('utf-8'))
+        return encrypt_message(load_public_key_from_env(), content)
     else:
-        return encrypt_message(load_public_key_from_file(), content.encode('utf-8'))
+        return encrypt_message(load_public_key_from_file(), content)
 
 
 def decrypt_content(content):
     # 加载私钥对数据进行解密
     if Config.PRIVATE_KEY:
-        return decrypt_message(load_private_key_from_env(), content).decode('utf-8')
+        return decrypt_message(load_private_key_from_env(), content)
     else:
-        return decrypt_message(load_private_key_from_file(), content).decode('utf-8')
+        return decrypt_message(load_private_key_from_file(), content)
 
