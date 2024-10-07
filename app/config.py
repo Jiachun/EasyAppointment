@@ -32,6 +32,12 @@ class Config:
     # 从环境变量中加载 Redis URL
     SESSION_REDIS = redis.from_url(os.getenv('REDIS_URL'))
 
+    # 从环境变量中加载 AppID
+    WECHAT_APP_ID = os.getenv('WECHAT_APP_ID')
+
+    # 从环境变量中加载 AppSecret
+    WECHAT_APP_SECRET = os.getenv('WECHAT_APP_SECRET')
+
     # 从环境变量中加载 PUBLIC KEY
     PUBLIC_KEY = os.getenv('PUBLIC_KEY')
 

@@ -64,25 +64,25 @@ class VisitorController:
             return {'error': '用户未找到'}, 404
 
         # 校验姓名格式是否正确
-        if 'name' not in data:
+        if 'name' not in data or not data['name']:
             return {'error': '姓名不能为空'}, 400
         if not validate_name(data['name']):
             return {'error': '姓名格式有误'}, 400
 
         # 校验性别是否正确
-        if 'gender' not in data:
+        if 'gender' not in data or not data['gender']:
             return {'error': '性别不能为空'}, 400
         if not validate_gender(data['gender']):
             return {'error': '性别格式有误'}, 400
 
         # 校验证件类型是否正确
-        if 'id_type' not in data:
+        if 'id_type' not in data or not data['id_type']:
             return {'error': '证件类型不能为空'}, 400
         if not validate_id_type(data['id_type']):
             return {'error': '证件类型有误'}, 400
 
         # 校验证件号码是否存在并有效
-        if 'id_number' not in data:
+        if 'id_number' not in data or not data['id_number']:
             return {'error': '证件号码不能为空'}, 400
         if not validate_id_number(data['id_type'], data['id_number']):
             return {'error': '证件号码不合法'}, 400
@@ -90,7 +90,7 @@ class VisitorController:
             return {'error': '证件号码已存在'}, 400
 
         # 校验手机号码是否存在并有效
-        if 'phone_number' not in data:
+        if 'phone_number' not in data or not data['phone_number']:
             return {'error': '手机号码不能为空'}, 400
         if not validate_phone_number(data['phone_number']):
             return {'error': '手机号码格式有误'}, 400
@@ -127,13 +127,13 @@ class VisitorController:
             return {'error': '访客未找到'}, 404
 
         # 校验证件类型是否正确
-        if 'id_type' not in data:
+        if 'id_type' not in data or not data['id_type']:
             return {'error': '证件类型不能为空'}, 400
         if not validate_id_type(data['id_type']):
             return {'error': '证件类型有误'}, 400
 
         # 校验证件号码是否存在并有效
-        if 'id_number' not in data:
+        if 'id_number' not in data or not data['id_number']:
             return {'error': '证件号码不能为空'}, 400
         if not validate_id_number(data['id_type'], data['id_number']):
             return {'error': '证件号码不合法'}, 400
@@ -141,7 +141,7 @@ class VisitorController:
             return {'error': '证件号码已存在'}, 400
 
         # 校验手机号码是否存在并有效
-        if 'phone_number' not in data:
+        if 'phone_number' not in data or not data['phone_number']:
             return {'error': '手机号码不能为空'}, 400
         if not validate_phone_number(data['phone_number']):
             return {'error': '手机号码格式有误'}, 400
@@ -149,13 +149,13 @@ class VisitorController:
             return {'error': '手机号码已存在'}, 400
 
         # 校验姓名格式是否正确
-        if 'name' not in data:
+        if 'name' not in data or not data['name']:
             return {'error': '姓名不能为空'}, 400
         if not validate_name(data['name']):
             return {'error': '姓名格式有误'}, 400
 
         # 校验性别是否正确
-        if 'gender' not in data:
+        if 'gender' not in data or not data['gender']:
             return {'error': '性别不能为空'}, 400
         if not validate_gender(data['gender']):
             return {'error': '性别格式有误'}, 400

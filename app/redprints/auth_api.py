@@ -41,10 +41,24 @@ def change_password(current_user):
 
 @auth_api.route('/set_password', methods=['POST'])
 @token_required
-def set_password(current_user):
+def set_password():
     """设置密码的 API 接口"""
     data = request.json
     response, status_code = AuthController.set_password(data)
+    return jsonify(response), status_code
+
+
+@auth_api.route('/register', methods=['POST'])
+def wechat_login():
+    data = request.json
+    response, status_code = AuthController.wechat_login(data)
+    return jsonify(response), status_code
+
+
+@auth_api.route('/bind', methods=['POST'])
+def bind():
+    data = request.json
+    response, status_code = AuthController.bind_user(data)
     return jsonify(response), status_code
 
 

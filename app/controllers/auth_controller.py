@@ -8,11 +8,13 @@
 """
 
 
+import requests
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from app.config import Config
 from app.models import User
 from extensions.db import redis_client, db
+from utils.random_utils import generate_random_string
 import jwt
 
 
@@ -38,7 +40,7 @@ class AuthController:
             return {'error': '账户已锁定，请稍后再试'}, 403
 
         # 查找现有的用户信息
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(username=username, is_deleted=False).first()
 
         # 校验用户名和密码是否正确
         if user and check_password_hash(user.password_hash, password):
@@ -131,9 +133,9 @@ class AuthController:
             return {'error': '用户ID和新密码不能为空'}, 400
 
         # 查找目标用户
-        user = User.query.get(user_id)
+        user = User.query.filter_by(id=user_id, is_deleted=False).first()
         if not user:
-            return {'error': '用户不存在'}, 404
+            return {'error': '用户不存在'}, 403
 
         # 设置新密码
         user.password_hash = generate_password_hash(new_password)
@@ -149,6 +151,120 @@ class AuthController:
         redis_client.delete(user.id)
 
         return {'message': '密码已成功更新'}, 200
+
+
+    @staticmethod
+    def wechat_login(data):
+        """微信用户登录"""
+
+        # 获取code
+        if 'code' not in data or not data['code']:
+            return {'error': '缺少 code 参数'}, 400
+
+        code = data['code']
+
+        # 微信小程序的 AppID 和 AppSecret
+        app_id = Config.WECHAT_APP_ID
+        app_secret = Config.WECHAT_APP_SECRET
+
+        # 向微信服务器发送请求，获取 openid 和 session_key
+        url = f"https://api.weixin.qq.com/sns/jscode2session?appid={app_id}&secret={app_secret}&js_code={code}&grant_type=authorization_code"
+        response = requests.get(url)
+        data = response.json()
+
+        if 'openid' not in data:
+            return {'error': '无法获取 openid'}, 400
+
+        openid = data['openid']
+
+        # 在数据库中检查用户是否已注册
+        user = User.query.filter_by(openid=openid, is_deleted=False).first()
+
+        if not user:
+            # 如果用户不存在
+            return {'error': '用户尚未绑定'}, 403
+
+        # 生成 token
+        now = datetime.now()
+        token = jwt.encode(
+            {
+                'id': user.id,
+                'exp': now + timedelta(seconds=Config.TOKEN_EXPIRY),
+                'refresh_time': now + timedelta(seconds=Config.TOKEN_EXPIRY - Config.REFRESH_THRESHOLD)
+            },
+            Config.JWT_SECRET_KEY, algorithm="HS256"
+        )
+
+        # 将 Token 存入 Redis
+        redis_client.set(user.id, token, ex=Config.TOKEN_EXPIRY)
+
+        return {'token': token}, 200
+
+
+    @staticmethod
+    def bind_user(data):
+        """绑定用户"""
+
+        # 验证用户的手机号是否正确
+        if 'phone_number' not in data or not data['phone_number']:
+            return {'error': '手机号码不能为空'}, 400
+
+        # 获取code
+        if 'code' not in data or not data['code']:
+            return {'error': '缺少 code 参数'}, 400
+
+        code = data['code']
+
+        # 微信小程序的 AppID 和 AppSecret
+        app_id = Config.WECHAT_APP_ID
+        app_secret = Config.WECHAT_APP_SECRET
+
+        # 向微信服务器发送请求，获取 openid 和 session_key
+        url = f"https://api.weixin.qq.com/sns/jscode2session?appid={app_id}&secret={app_secret}&js_code={code}&grant_type=authorization_code"
+        response = requests.get(url)
+        data = response.json()
+
+        if 'openid' not in data:
+            return {'error': '无法获取 openid'}, 400
+
+        openid = data['openid']
+
+        # 查找手机号码绑定的用户
+        user = User.query.filter_by(phone_number=data['phone_number'], is_deleted=False).first()
+
+        try:
+            if user:
+                # 如果用户存在，绑定openid
+                user.openid = openid
+            else:
+                # 如果用户不存在，创建用户
+                user = User(
+                    username=generate_random_string(),
+                    password=generate_password_hash(generate_random_string()),
+                    phone_number=data['phone_number'],
+                    openid=openid,
+                )
+                db.session.add(user)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+
+        # 生成 token
+        now = datetime.now()
+        token = jwt.encode(
+            {
+                'id': user.id,
+                'exp': now + timedelta(seconds=Config.TOKEN_EXPIRY),
+                'refresh_time': now + timedelta(seconds=Config.TOKEN_EXPIRY - Config.REFRESH_THRESHOLD)
+            },
+            Config.JWT_SECRET_KEY, algorithm="HS256"
+        )
+
+        # 将 Token 存入 Redis
+        redis_client.set(user.id, token, ex=Config.TOKEN_EXPIRY)
+
+        return {'token': token}, 200
 
 
     @staticmethod

@@ -44,7 +44,7 @@ class UserController:
         """创建用户信息"""
 
         # 校验用户名是否存在并有效
-        if 'username' not in data:
+        if 'username' not in data or not data['username']:
             return {'error': '用户名不能为空'}, 400
         if not validate_username(data['username']):
             return {'error': '用户名格式有误'}, 400
@@ -52,11 +52,11 @@ class UserController:
             return {'error': '用户名已存在'}, 400
 
         # 校验密码是否有效
-        if 'password' not in data:
+        if 'password' not in data or not data['password']:
             return {'error': '密码不能为空'}, 400
 
         # 校验手机号码是否存在并有效
-        if 'phone_number' not in data:
+        if 'phone_number' not in data or not data['phone_number']:
             return {'error': '手机号码不能为空'}, 400
         if not validate_phone_number(data['phone_number']):
             return {'error': '手机号码格式有误'}, 400
@@ -64,32 +64,40 @@ class UserController:
             return {'error': '手机号码已存在'}, 400
 
         # 校验姓名格式是否正确
-        if 'name' in data and not validate_name(data['name']):
+        if 'name' not in data or not data['name']:
+            return {'error': '姓名不能为空'}, 400
+        if not validate_name(data['name']):
             return {'error': '姓名格式有误'}, 400
 
         # 校验性别是否正确
-        if 'gender' in data and not validate_gender(data['gender']):
+        if 'gender' not in data or not data['gender']:
+            return {'error': '性别不能为空'}, 400
+        if validate_gender(data['gender']):
             return {'error': '性别格式有误'}, 400
 
         # 校验证件类型是否正确
-        if 'id_type' in data and not validate_id_type(data['id_type']):
+        if 'id_type' not in data or not data['id_type']:
+            return {'error': '证件类型不能为空'}, 400
+        if not validate_id_type(data['id_type']):
             return {'error': '证件类型有误'}, 400
 
         # 校验证件号码是否合法
-        if 'id_type' in data and 'id_number' in data and not validate_id_number(data['id_type'], data['id_number']):
+        if 'id_number' not in data or not data['id_number']:
+            return {'error': '证件号码不能为空'}, 400
+        if not validate_id_number(data['id_type'], data['id_number']):
             return {'error': '证件号码不合法'}, 400
 
         user = User(
             username=data['username'],
             password_hash=generate_password_hash(data['password_hash'],method='scrypt'),
             phone_number=data['phone_number'],
-            openid = data.get('openid', ''),
-            name = data.get('name', ''),
-            gender = data.get('gender', ''),
-            id_type = data.get('id_type', ''),
-            id_number = data.get('id_number', ''),
-            is_active = data.get('is_active', True),
-            is_deleted = data.get('is_deleted', False),
+            name=data['name'],
+            gender=data['gender'],
+            id_type=data['id_type'],
+            id_number=data['id_number'],
+            openid=None,
+            is_active=True,
+            is_deleted=False,
         )
 
         # 提交数据库更新
@@ -112,49 +120,52 @@ class UserController:
         if not user:
             return {'error': '用户未找到'}, 404
 
-        # 校验并更新用户名
-        if 'username' in data:
-            if not validate_username(data['username']):
-                return {'error': '用户名格式有误'}, 400
-            if User.query.filter(User.username==data['username'], User.id!=user_id, User.is_deleted==False).first():
-                return {'error': '用户名已存在'}, 400
-            user.username = data['username']
+        # 校验用户名是否存在并有效
+        if 'username' not in data or not data['username']:
+            return {'error': '用户名不能为空'}, 400
+        if not validate_username(data['username']):
+            return {'error': '用户名格式有误'}, 400
+        if User.query.filter(User.username==data['username'], User.id!=user_id, User.is_deleted==False).first():
+            return {'error': '用户名已存在'}, 400
 
-        # 校验并更新手机号码
-        if 'phone_number' in data:
-            if not validate_phone_number(data['phone_number']):
-                return {'error': '手机号码格式有误'}, 400
-            if User.query.filter(User.phone_number==data['phone_number'], User.id!=user_id, User.is_deleted==False).first():
-                return {'error': '手机号码已存在'}, 400
-            user.phone_number = data['phone_number']
+        # 校验手机号码是否存在并有效
+        if 'phone_number' not in data or not data['phone_number']:
+            return {'error': '手机号码不能为空'}, 400
+        if not validate_phone_number(data['phone_number']):
+            return {'error': '手机号码格式有误'}, 400
+        if User.query.filter(User.phone_number==data['phone_number'], User.id!=user_id, User.is_deleted==False).first():
+            return {'error': '手机号码已存在'}, 400
 
-        # 校验并更新姓名
-        if 'name' in data:
-            if not validate_name(data['name']):
-                return {'error': '姓名格式有误'}, 400
-            user.name = data['name']
+        # 校验姓名格式是否正确
+        if 'name' not in data or not data['name']:
+            return {'error': '姓名不能为空'}, 400
+        if not validate_name(data['name']):
+            return {'error': '姓名格式有误'}, 400
 
-        # 校验并更新性别
-        if 'gender' in data:
-            if not validate_gender(data['gender']):
-                return {'error': '性别格式有误'}, 400
-            user.gender = data['gender']
+        # 校验性别格式是否正确
+        if 'gender' not in data or not data['gender']:
+            return {'error': '性别不能为空'}, 400
+        if not validate_gender(data['gender']):
+            return {'error': '性别格式有误'}, 400
 
-        # 校验并更新证件类型
-        if 'id_type' in data:
-            if not validate_id_type(data['id_type']):
-                return {'error': '证件类型有误'}, 400
-            user.id_type = data['id_type']
+        # 校验证件类型是否正确
+        if 'id_type' not in data or not data['id_type']:
+            return {'error': '证件类型不能为空'}, 400
+        if not validate_id_type(data['id_type']):
+            return {'error': '证件类型有误'}, 400
 
-        # 校验并更新证件号码
-        if 'id_type' in data and 'id_number' in data:
-            if not validate_id_number(data['id_number'], data['id_number']):
-                return {'error': '证件号码不合法'}, 400
-            user.id_number = data['id_number']
+        # 校验证件号码是否合法
+        if 'id_number' not in data or not data['id_number']:
+            return {'error': '证件号码不能为空'}, 400
+        if not validate_id_number(data['id_type'], data['id_number']):
+            return {'error': '证件号码不合法'}, 400
 
-        # 更新激活状态
-        if 'is_active' in data:
-            user.is_active = data['is_active']
+        user.username = data['username']
+        user.phone_number = data['phone_number']
+        user.name = data['name']
+        user.gender = data['gender']
+        user.id_type = data['id_type']
+        user.id_number = data['id_number']
 
         # 提交数据库更新
         try:

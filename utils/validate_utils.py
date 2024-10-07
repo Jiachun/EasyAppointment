@@ -86,6 +86,7 @@ def validate_id_number(id_type, id_number):
         return validate_hk_macau_pass(id_number)
     if id_type == '台湾居民来往大陆通行证':
         return validate_tw_pass(id_number)
+    return False
 
 def validate_license_plate(license_plate):
     # 正则表达式匹配车牌格式
