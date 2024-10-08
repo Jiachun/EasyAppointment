@@ -7,7 +7,7 @@
 # 描述: 权限模型文件。
 """
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from extensions.db import db
 from .role_permission import role_permission
@@ -18,8 +18,9 @@ class Permission(db.Model):
     __tablename__ = 'permissions'
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 权限ID
-    name = Column(String(50), unique=True, nullable=False)  # 权限名称
+    name = Column(String(50), nullable=False)  # 权限名称，唯一
     description = Column(String(255))  # 权限描述（可选）
+    is_deleted = Column(Boolean, nullable=False, default=False)  # 是否删除
 
     # 权限可以关联多个角色
     roles = relationship('Role', secondary=role_permission, back_populates='permissions', lazy='dynamic')

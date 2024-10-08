@@ -276,7 +276,7 @@ class AuthController:
             return {'error': '缺少 openid 参数'}, 400
 
         # 查找用户并解绑
-        user = User.query.filter_by(openid=data['openid']).first()
+        user = User.query.filter_by(openid=data['openid'], is_deleted=False).first()
 
         if not user:
             return {'error': '用户不存在'}, 400

@@ -33,7 +33,7 @@ class UserDepartmentController:
 
         # 查找现有的用户和部门信息
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
-        department = Department.query.get(department_id)
+        department = Department.query.filter_by(id=department_id, is_deleted=False).first()
 
         if not user:
             return {'error': '用户未找到'}, 404
@@ -65,7 +65,7 @@ class UserDepartmentController:
 
         # 查找现有的用户和部门信息
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
-        department = Department.query.get(department_id)
+        department = Department.query.filter_by(id=department_id, is_deleted=False).first()
 
         if not user:
             return {'error': '用户未找到'}, 404

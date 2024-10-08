@@ -17,7 +17,7 @@ class PermissionController:
         """获取所有权限信息"""
 
         # 分页
-        paginated_permissions = Permission.query.paginate(page=page, per_page=per_page, error_out=False)
+        paginated_permissions = Permission.query.filter_by(is_deleted=False).paginate(page=page, per_page=per_page, error_out=False)
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
@@ -31,7 +31,7 @@ class PermissionController:
     @staticmethod
     def get_permission_by_id(permission_id):
         """根据ID获取权限信息"""
-        permission = Permission.query.get(permission_id)
+        permission = Permission.query.filter_by(id=permission_id, is_deleted=False).first()
         if permission:
             return permission.to_dict(), 200
         return {'error': '权限未找到'}, 404
@@ -44,12 +44,13 @@ class PermissionController:
         # 校验权限名称是否存在并有效
         if 'name' not in data or not data['name'] or len(data['name']) < 3:
             return {'error': '权限名称不能为空且至少为3个字符'}, 400
-        if Permission.query.filter_by(name=data['name']).first():
+        if Permission.query.filter_by(name=data['name'], is_deleted=False).first():
             return {'error': '权限名称已存在'}, 400
 
         permission = Permission(
             name=data['name'],
             description=data.get('description') or '',
+            is_deleted=False,
         )
 
         # 提交数据库更新
@@ -70,11 +71,11 @@ class PermissionController:
         # 校验权限名称是否有效
         if 'name' not in data or not data['name'] or len(data['name']) < 3:
             return {'error': '权限名称不能为空且至少为3个字符'}, 400
-        if Permission.query.filter(Permission.name==data['name'], Permission.id!=permission_id).first():
+        if Permission.query.filter(Permission.name==data['name'], Permission.id!=permission_id, Permission.is_deleted==False).first():
             return {'error': '权限名称已存在'}, 400
 
         # 查找现有的权限信息
-        permission = Permission.query.get(permission_id)
+        permission = Permission.query.filter_by(id=permission_id, is_deleted=False).first()
         if not permission:
             return {'error': '权限未找到'}, 404
 
@@ -99,16 +100,17 @@ class PermissionController:
         """删除权限信息"""
 
         # 查找现有的权限信息
-        permission = Permission.query.get(permission_id)
+        permission = Permission.query.filter_by(id=permission_id, is_deleted=False).first()
 
         if permission:
             # 检查权限是否被用户或权限关联
             if permission.is_associated():
                 return {'error': '权限有关联数据'}, 400
 
+            permission.is_deleted = True
+
             # 提交数据库更新
             try:
-                db.session.delete(permission)
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
@@ -130,7 +132,7 @@ class PermissionController:
             query = query.filter(Permission.name.contains(filters['name']))
 
         # 分页
-        paginated_permissions = query.paginate(page=page, per_page=per_page, error_out=False)
+        paginated_permissions = query.filter(Permission.is_deleted==False).paginate(page=page, per_page=per_page, error_out=False)
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
