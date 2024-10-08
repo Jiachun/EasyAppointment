@@ -9,6 +9,7 @@
 
 from app.models import Campus
 from extensions.db import db
+from datetime import datetime
 
 
 class CampusController:
@@ -104,6 +105,7 @@ class CampusController:
 
         if campus:
             campus.is_deleted = True
+            campus.deleted_at = datetime.now()
 
             # 提交数据库更新
             try:

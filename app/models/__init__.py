@@ -2,9 +2,9 @@ from .user import User
 from .permission import Permission
 from .role import Role
 from .department import Department
-from .user_role import user_role
-from .role_permission import role_permission
-from .user_department import user_department
+from .user_role import UserRole
+from .role_permission import RolePermission
+from .user_department import UserDepartment
 from .visitor import Visitor
 from .visitor_log import VisitorLog
 from .campus import Campus
@@ -12,6 +12,6 @@ from .campus import Campus
 
 __all__ = [
     "User", "Permission", "Role", "Department",
-    "user_role", "role_permission", "user_department",
+    "UserRole", "RolePermission", "UserDepartment",
     "Visitor", "VisitorLog", "Campus"
 ]
