@@ -10,13 +10,15 @@ import base64
 import os
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP, AES
+from Crypto.PublicKey.RSA import RsaKey
 from Crypto.Random import get_random_bytes
 from app.config import Config
 
 
-def generate_key_pair(keys_directory):
+def generate_key_pair():
     """生成 RSA 密钥对"""
     # 检查目录是否存在，不存在则创建
+    keys_directory = Config.KEYS_DIR
     if not os.path.exists(keys_directory):
         os.makedirs(keys_directory)
         print(f"创建目录: {keys_directory}")
@@ -79,35 +81,75 @@ def load_private_key_from_env():
         raise EnvironmentError(f"环境变量 PRIVATE_KEY 中未找到私钥数据")
 
 
-def rsa_encrypt(data, public_key):
-    """使用 RSA 公钥加密数据"""
-    cipher_rsa = PKCS1_OAEP.new(public_key)
-    encrypted_data = cipher_rsa.encrypt(data)
-    return base64.b64encode(encrypted_data)
+def rsa_encrypt_bytes_to_str(public_key: RsaKey, data: bytes) -> str:
+    """使用 RSA 公钥加密数据 bytes to str"""
+    cipher = PKCS1_OAEP.new(public_key)
+    encrypted_data = cipher.encrypt(data)  # 加密后的字节数据
+    return base64.b64encode(encrypted_data).decode('utf-8')  # 编码为 base64 字符串
 
 
-def rsa_decrypt(encrypted_data, private_key):
-    """ 使用 RSA 私钥解密数据 """
-    cipher_rsa = PKCS1_OAEP.new(private_key)
-    encrypted_data = base64.b64decode(encrypted_data)
-    decrypted_data = cipher_rsa.decrypt(encrypted_data)
+def rsa_decrypt_str_to_bytes(private_key: RsaKey, encrypted_data: str) -> bytes:
+    """ 使用 RSA 私钥解密数据 str to bytes"""
+    cipher = PKCS1_OAEP.new(private_key)
+    encrypted_data_bytes = base64.b64decode(encrypted_data.encode('utf-8'))  # base64 解码为字节数据
+    decrypted_data = cipher.decrypt(encrypted_data_bytes)  # 解密为字节数据
     return decrypted_data
+
+
+def rsa_encrypt_str_to_bytes(public_key: RsaKey, data: str) -> bytes:
+    """使用 RSA 公钥加密数据 str to bytes"""
+    cipher = PKCS1_OAEP.new(public_key)
+    encrypted_data = cipher.encrypt(data.encode('utf-8'))  # 加密后的字节数据
+    return encrypted_data
+
+
+def rsa_decrypt_bytes_to_str(private_key: RsaKey, encrypted_data: bytes) -> str:
+    """ 使用 RSA 私钥解密数据 bytes to str"""
+    cipher = PKCS1_OAEP.new(private_key)
+    decrypted_data = cipher.decrypt(encrypted_data)  # 解密为字节数据
+    return decrypted_data.decode('utf-8')  # 解码为字符串
+
+
+def rsa_encrypt_str_to_str(public_key: RsaKey, data: str) -> str:
+    """使用 RSA 公钥加密数据 str to str"""
+    cipher = PKCS1_OAEP.new(public_key)
+    encrypted_data = cipher.encrypt(data.encode('utf-8'))  # 加密后的字节数据
+    return base64.b64encode(encrypted_data).decode('utf-8')  # 编码为 base64 字符串
+
+
+def rsa_decrypt_str_to_str(private_key: RsaKey, encrypted_data: str) -> str:
+    """ 使用 RSA 私钥解密数据 str to str"""
+    cipher = PKCS1_OAEP.new(private_key)
+    encrypted_data_bytes = base64.b64decode(encrypted_data.encode('utf-8'))  # base64 解码为字节数据
+    decrypted_data = cipher.decrypt(encrypted_data_bytes)  # 解密为字节数据
+    return decrypted_data.decode('utf-8')  # 解码为字符串
+
+def rsa_encrypt_aes_key(aes_key):
+    """加载 RSA 公钥对 AES 密钥进行加密"""
+    if Config.PUBLIC_KEY:
+        return rsa_encrypt_bytes_to_str(load_public_key_from_env(), aes_key)
+    return rsa_encrypt_bytes_to_str(load_public_key_from_file(), aes_key)
+
+
+def rsa_decrypt_aes_key(aes_key):
+    """加载 RSA 私钥对 AES 密钥进行解密"""
+    if Config.PRIVATE_KEY:
+        return rsa_decrypt_str_to_bytes(load_private_key_from_env(), aes_key)
+    return rsa_decrypt_str_to_bytes(load_private_key_from_file(), aes_key)
 
 
 def rsa_encrypt_data(data):
     """加载 RSA 公钥对数据进行加密"""
     if Config.PUBLIC_KEY:
-        return rsa_encrypt(data, load_public_key_from_env())
-    else:
-        return rsa_encrypt(data, load_public_key_from_file())
+        return rsa_encrypt_str_to_str(load_public_key_from_env(), data)
+    return rsa_encrypt_str_to_str(load_public_key_from_file(), data)
 
 
 def rsa_decrypt_data(data):
     """加载 RSA 私钥对数据进行解密"""
     if Config.PRIVATE_KEY:
-        return rsa_decrypt(data, load_private_key_from_env())
-    else:
-        return rsa_decrypt(data, load_private_key_from_file())
+        return rsa_decrypt_str_to_str(load_private_key_from_env(), data)
+    return rsa_decrypt_str_to_str(load_private_key_from_file(), data)
 
 
 def pad(data: bytes) -> bytes:
@@ -152,19 +194,14 @@ def aes256_decrypt(encrypted_data: str, key: bytes) -> str:
     return decrypted_data.decode('utf-8')
 
 
-def generate_aes_key():
-    """生成 AES-256 密钥"""
-    return get_random_bytes(32)
-
-
 def aes256_encrypt_data(data):
     """随机生成 AES-256 密钥对数据进行加密"""
     try:
-        key = generate_aes_key()  # 生成 AES 密钥
+        key = get_random_bytes(32)  # 生成 AES 密钥
         encrypted_data = aes256_encrypt(data, key)  # 加密数据
 
         return {
-            'encrypted_key': rsa_encrypt_data(key).decode('utf-8'),  # 使用 RSA 加密 AES 密钥
+            'encrypted_key': rsa_encrypt_aes_key(key),  # 使用 RSA 加密 AES 密钥
             'encrypted_data': encrypted_data,  # 加密后的数据
         }
     except Exception as e:
@@ -175,7 +212,7 @@ def aes256_decrypt_data(data):
     """使用 AES-256 密钥对数据进行解密"""
     try:
         # 解码密钥和加密数据
-        key = rsa_decrypt_data(data['encrypted_key'])  # 使用 RSA 解密 AES 密钥
+        key = rsa_decrypt_aes_key(data['encrypted_key'])  # 使用 RSA 解密 AES 密钥
         encrypted_data = data['encrypted_data']  # 加密后的数据
         decrypted_data = aes256_decrypt(encrypted_data, key)  # 解密数据
 

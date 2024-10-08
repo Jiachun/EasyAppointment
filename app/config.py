@@ -44,6 +44,9 @@ class Config:
     # 从环境变量中加载 PRIVATE KEY
     PRIVATE_KEY = os.getenv('PRIVATE_KEY')
 
+    # 从环境变量中加载密钥对存放目录路径
+    KEYS_DIR = os.getenv('KEYS_DIR')
+
     # 从环境变量中加载公钥文件路径
     PUBLIC_KEY_PATH = os.getenv('PUBLIC_KEY_PATH')
 

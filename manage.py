@@ -14,8 +14,7 @@ migrate = Migrate(app, db)
 def generate_key():
     """创建数据库表"""
     with app.app_context():
-        keys_directory = 'keys'
-        generate_key_pair(keys_directory)
+        generate_key_pair()
         click.echo("密钥对已生成！")
 
 
