@@ -7,5 +7,6 @@ click~=8.1.7
 Flask-Migrate~=4.0.7
 Werkzeug~=3.0.4
 redis~=5.1.1
+Flask-CORS==3.1.13
 PyJWT~=2.9.0
 requests~=2.32.3
