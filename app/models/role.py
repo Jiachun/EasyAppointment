@@ -7,7 +7,7 @@
 # 描述: 角色模型文件。
 """
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from extensions.db import db
 from .role_permission import role_permission
@@ -19,7 +19,9 @@ class Role(db.Model):
     __tablename__ = 'roles'
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 角色ID
-    name = Column(String(50), unique=True, nullable=False)  # 角色名称
+    name = Column(String(50), nullable=False)  # 角色名称，唯一
+    description = Column(String(255))  # 角色描述（可选）
+    is_deleted = Column(Boolean, nullable=False, default=False)  # 是否删除
 
     # 角色可以拥有多个权限
     permissions = relationship('Permission', secondary=role_permission, back_populates='roles', lazy='dynamic')
@@ -34,6 +36,7 @@ class Role(db.Model):
         return {
             'id': self.id,
             'name': self.name,
+            'description': self.description,
         }
 
     def is_associated(self):

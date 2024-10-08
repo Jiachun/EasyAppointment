@@ -16,7 +16,7 @@ class RolePermissionController:
         """获取角色的所有权限"""
 
         # 查找现有的角色信息
-        role = Role.query.get(role_id)
+        role = Role.query.filter_by(id=role_id, is_deleted=False).first()
 
         if not role:
             return {'error': '角色不存在'}, 404
@@ -32,13 +32,13 @@ class RolePermissionController:
             return {'error': '权限ID列表不能为空'}, 400
 
         # 查找现有的角色信息
-        role = Role.query.get(role_id)
+        role = Role.query.filter_by(id=role_id, is_deleted=False).first()
 
         if not role:
             return {'error': '角色不存在'}, 404
 
         # 获取所有新的权限
-        permissions = Permission.query.filter(Permission.id.in_(permission_ids)).all()
+        permissions = Permission.query.filter(Permission.id.in_(permission_ids), Permission.is_deleted==False).all()
 
         if not permissions:
             return {'error': '权限不存在或无效'}, 404
@@ -63,13 +63,13 @@ class RolePermissionController:
             return {'error': '权限ID列表不能为空'}, 400
 
         # 查找现有的角色信息
-        role = Role.query.get(role_id)
+        role = Role.query.filter_by(id=role_id, is_deleted=False).first()
 
         if not role:
             return {'error': '角色不存在'}, 404
 
         # 查找现有的权限信息
-        permissions = Permission.query.filter(Permission.id.in_(permission_ids)).all()
+        permissions = Permission.query.filter(Permission.id.in_(permission_ids), Permission.is_deleted==False).all()
 
         if not permissions:
             return {'error': '权限不存在或无效'}, 404

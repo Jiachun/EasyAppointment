@@ -7,7 +7,7 @@
 # 描述: 校区模型文件。
 """
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from extensions.db import db
 
 
@@ -16,8 +16,9 @@ class Campus(db.Model):
     __tablename__ = 'campuses'
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 校区ID
-    name = Column(String(100), nullable=False, unique=True)  # 校区名称
+    name = Column(String(100), nullable=False)  # 校区名称，唯一
     description = Column(String(255), nullable=True)  # 校区描述（可选）
+    is_deleted = Column(Boolean, nullable=False, default=False)  # 是否删除
 
     def __repr__(self):
         return f'<Campus {self.name}>'

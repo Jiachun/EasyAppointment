@@ -10,7 +10,6 @@
 
 from flask import Blueprint, jsonify, request
 from app.controllers import VisitorController
-from app.models import Visitor
 
 visitor_api = Blueprint('visitor_api', __name__)
 

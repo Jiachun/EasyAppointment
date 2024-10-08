@@ -33,7 +33,7 @@ class UserRoleController:
 
         # 查找现有的用户和角色信息
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
-        role = Role.query.get(role_id)
+        role = Role.query.filter_by(id=role_id, is_deleted=False).first()
 
         if not user:
             return {'error': '用户未找到'}, 404
@@ -65,7 +65,7 @@ class UserRoleController:
 
         # 查找现有的用户和角色信息
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
-        role = Role.query.get(role_id)
+        role = Role.query.filter_by(id=role_id, is_deleted=False).first()
 
         if not user:
             return {'error': '用户未找到'}, 404

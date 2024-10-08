@@ -44,19 +44,19 @@ class VisitorLogController:
         """创建访客记录"""
 
         # 校验证件类型是否正确
-        if 'visitor_id_type' not in data:
+        if 'visitor_id_type' not in data or not data['visitor_id_type']:
             return {'error': '访客证件类型不能为空'}, 400
         if not validate_id_type(data['visitor_id_type']):
             return {'error': '访客证件类型有误'}, 400
 
         # 校验证件号码是否有效
-        if 'visitor_id_number' not in data:
+        if 'visitor_id_number' not in data or not data['visitor_id_number']:
             return {'error': '访客证件号码不能为空'}, 400
         if not validate_id_number(data['visitor_id_type'], data['visitor_id_number']):
             return {'error': '访客证件号码不合法'}, 400
 
         # 校验手机号码是否有效
-        if 'visitor_phone_number' not in data:
+        if 'visitor_phone_number' not in data or not data['visitor_phone_number']:
             return {'error': '访客手机号码不能为空'}, 400
         if not validate_phone_number(data['visitor_phone_number']):
             return {'error': '访客手机号码格式有误'}, 400
@@ -66,27 +66,27 @@ class VisitorLogController:
             return {'error': '该用户不存在'}, 400
 
         # 校验访客姓名格式是否正确
-        if 'visitor_name' not in data:
+        if 'visitor_name' not in data or not data['visitor_name']:
             return {'error': '访客姓名不能为空'}, 400
         if not validate_name(data['visitor_name']):
             return {'error': '访客姓名格式有误'}, 400
 
         # 校验访客性别是否正确
-        if 'visitor_gender' not in data:
+        if 'visitor_gender' not in data or not data['visitor_gender']:
             return {'error': '访客性别不能为空'}, 400
         if not validate_gender(data['visitor_gender']):
             return {'error': '访客性别格式有误'}, 400
 
         # 校验访客类型，因公访问、因私访问、社会公众
-        if 'visit_type' not in data:
+        if 'visit_type' not in data or not data['visit_type']:
             return {'error': '访客类型不能为空'}, 400
         if not validate_visit_type(data['visit_type']):
             return {'error': '访客类型有误'}, 400
 
         # 校验访问时间和离校时间
-        if 'visit_time' not in data:
+        if 'visit_time' not in data or not data['visit_time']:
             return {'error': '访问时间不能为空'}, 400
-        if 'leave_time' not in data:
+        if 'leave_time' not in data or not data['leave_time']:
             return {'error': '离校时间不能为空'}, 400
         if compare_time_strings(data['visit_time'], data['leave_time']):
             return {'error': '离校时间不能早于访问时间'}, 400
@@ -98,7 +98,7 @@ class VisitorLogController:
             return {'error': '当前时间段未开放预约'}, 400
 
         # 校验校区名称
-        if 'campus' not in data:
+        if 'campus' not in data or not data['campus']:
             return {'error': '校区名称不能为空'}, 400
         if not Campus.query.filter_by(name=data['campus']).first():
             return {'error': '校区名称有误'}, 400
@@ -106,28 +106,29 @@ class VisitorLogController:
         if not data['visit_type'] == '社会公众':
 
             # 校验访客所属单位
-            if data['visit_type'] == '因公访问' and 'visitor_org' not in data:
+            if data['visit_type'] == '因公访问' and 'visitor_org' not in data or not data['visitor_org']:
                 return {'error': '访客所属单位不能为空'}, 400
 
             # 校验被访人姓名格式
-            if 'visited_person_name' not in data:
+            if 'visited_person_name' not in data or not data['visited_person_name']:
                 return {'error': '被访人姓名不能为空'}, 400
             if validate_name(data['visited_person_name']):
                 return {'error': '被访人姓名格式有误'}, 400
 
             # 校验被访人部门
-            if 'visited_person_org' not in data:
+            if 'visited_person_org' not in data or not data['visited_person_org']:
                 return {'error': '被访人部门不能为空'}, 400
             if not Department.query.filter_by(name=data['visited_person_org']).first():
                 return {'error': '被访人部门名称有误'}, 400
 
             # 校验访问事由
-            if 'reason' not in data or len(data['reason']) < 2:
+            if 'reason' not in data or not data['reason'] or len(data['reason']) < 2:
                 return {'error': '访问事由不能为空且至少为2个字符'}, 400
 
             # 校验车牌格式
-            if 'license_plate' in data and not validate_license_plate(data['license_plate']):
-                return {'error': '车牌格式有误'}, 400
+            if 'license_plate' in data:
+                if not data['license_plate'] or not validate_license_plate(data['license_plate']):
+                    return {'error': '车牌格式有误'}, 400
 
 
         visitor_log = VisitorLog(
@@ -140,12 +141,12 @@ class VisitorLogController:
             visitor_phone_number=data['visitor_phone_number'],
             visitor_id_type=data['visitor_id_type'],
             visitor_id_number=data['visitor_id_number'],
-            visitor_org=data.get('visitor_org', ''),
-            visited_person_name=data.get('visited_person_name', ''),
-            visited_person_org=data.get('visited_person_org', ''),
-            reason=data.get('reason', ''),
-            accompanying_people=data.get('accompanying_people', ''),
-            license_plate=data.get('license_plate', ''),
+            visitor_org=data.get('visitor_org') or '',
+            visited_person_name=data.get('visited_person_name') or '',
+            visited_person_org=data.get('visited_person_org') or '',
+            reason=data.get('reason') or '',
+            accompanying_people=data.get('accompanying_people') or '',
+            license_plate=data.get('license_plate') or '',
             approver=None,
             is_approved=None,
             approval_time=None,
@@ -185,19 +186,19 @@ class VisitorLogController:
             return {'error': '已取消的访客记录无法修改'}, 400
 
         # 校验证件类型是否正确
-        if 'visitor_id_type' not in data:
+        if 'visitor_id_type' not in data or not data['visitor_id_type']:
             return {'error': '访客证件类型不能为空'}, 400
         if not validate_id_type(data['visitor_id_type']):
             return {'error': '访客证件类型有误'}, 400
 
         # 校验证件号码是否有效
-        if 'visitor_id_number' not in data:
+        if 'visitor_id_number' not in data or not data['visitor_id_number']:
             return {'error': '访客证件号码不能为空'}, 400
         if not validate_id_number(data['visitor_id_type'], data['visitor_id_number']):
             return {'error': '访客证件号码不合法'}, 400
 
         # 校验手机号码是否有效
-        if 'visitor_phone_number' not in data:
+        if 'visitor_phone_number' not in data or not data['visitor_phone_number']:
             return {'error': '访客手机号码不能为空'}, 400
         if not validate_phone_number(data['visitor_phone_number']):
             return {'error': '访客手机号码格式有误'}, 400
@@ -207,27 +208,27 @@ class VisitorLogController:
             return {'error': '该用户不存在'}, 400
 
         # 校验访客姓名格式是否正确
-        if 'visitor_name' not in data:
+        if 'visitor_name' not in data or not data['visitor_name']:
             return {'error': '访客姓名不能为空'}, 400
         if not validate_name(data['visitor_name']):
             return {'error': '访客姓名格式有误'}, 400
 
         # 校验访客性别是否正确
-        if 'visitor_gender' not in data:
+        if 'visitor_gender' not in data or not data['visitor_gender']:
             return {'error': '访客性别不能为空'}, 400
         if not validate_gender(data['visitor_gender']):
             return {'error': '访客性别格式有误'}, 400
 
         # 校验访客类型，因公访问、因私访问、社会公众
-        if 'visit_type' not in data:
+        if 'visit_type' not in data or not data['visit_type']:
             return {'error': '访客类型不能为空'}, 400
         if not validate_visit_type(data['visit_type']):
             return {'error': '访客类型有误'}, 400
 
         # 校验访问时间和离校时间
-        if 'visit_time' not in data:
+        if 'visit_time' not in data or not data['visit_time']:
             return {'error': '访问时间不能为空'}, 400
-        if 'leave_time' not in data:
+        if 'leave_time' not in data or not data['leave_time']:
             return {'error': '离校时间不能为空'}, 400
         if compare_time_strings(data['visit_time'], data['leave_time']):
             return {'error': '离校时间不能早于访问时间'}, 400
@@ -239,7 +240,7 @@ class VisitorLogController:
             return {'error': '当前时间段未开放预约'}, 400
 
         # 校验校区名称
-        if 'campus' not in data:
+        if 'campus' not in data or not data['campus']:
             return {'error': '校区名称不能为空'}, 400
         if not Campus.query.filter_by(name=data['campus']).first():
             return {'error': '校区名称有误'}, 400
@@ -247,28 +248,29 @@ class VisitorLogController:
         if not data['visit_type'] == '社会公众':
 
             # 校验访客所属单位
-            if data['visit_type'] == '因公访问' and 'visitor_org' not in data:
+            if data['visit_type'] == '因公访问' and 'visitor_org' not in data or not data['visitor_org']:
                 return {'error': '访客所属单位不能为空'}, 400
 
             # 校验被访人姓名格式
-            if 'visited_person_name' not in data:
+            if 'visited_person_name' not in data or not data['visited_person_name']:
                 return {'error': '被访人姓名不能为空'}, 400
             if validate_name(data['visited_person_name']):
                 return {'error': '被访人姓名格式有误'}, 400
 
             # 校验被访人部门
-            if 'visited_person_org' not in data:
+            if 'visited_person_org' not in data or not data['visited_person_org']:
                 return {'error': '被访人部门不能为空'}, 400
             if not Department.query.filter_by(name=data['visited_person_org']).first():
                 return {'error': '被访人部门名称有误'}, 400
 
             # 校验访问事由
-            if 'reason' not in data or len(data['reason']) < 2:
+            if 'reason' not in data or not data['reason'] or len(data['reason']) < 2:
                 return {'error': '访问事由不能为空且至少为2个字符'}, 400
 
             # 校验车牌格式
-            if 'license_plate' in data and not validate_license_plate(data['license_plate']):
-                return {'error': '车牌格式有误'}, 400
+            if 'license_plate' in data:
+                if not data['license_plate'] or not validate_license_plate(data['license_plate']):
+                    return {'error': '车牌格式有误'}, 400
 
         visitor_log.visit_type = data['visit_type']
         visitor_log.visit_time = data['visit_time']
@@ -279,12 +281,12 @@ class VisitorLogController:
         visitor_log.visitor_phone_number = data['visitor_phone_number']
         visitor_log.visitor_id_type = data['visitor_id_type']
         visitor_log.visitor_id_number = data['visitor_id_number']
-        visitor_log.visitor_org = data.get('visitor_org', '')
-        visitor_log.visited_person_name = data.get('visited_person_name', '')
-        visitor_log.visited_person_org = data.get('visited_person_org', '')
-        visitor_log.reason = data.get('reason', '')
-        visitor_log.accompanying_people = data.get('accompanying_people', '')
-        visitor_log.license_plate = data.get('license_plate', '')
+        visitor_log.visitor_org = data.get('visitor_org') or ''
+        visitor_log.visited_person_name = data.get('visited_person_name') or ''
+        visitor_log.visited_person_org = data.get('visited_person_org') or ''
+        visitor_log.reason = data.get('reason') or ''
+        visitor_log.accompanying_people = data.get('accompanying_people') or ''
+        visitor_log.license_plate = data.get('license_plate') or ''
         visitor_log.update_time = datetime.now()
 
         # 提交数据库更新
