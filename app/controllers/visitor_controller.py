@@ -7,8 +7,10 @@
 # 描述: 访客信息逻辑控制器。
 """
 
+
 from app.models import User, Visitor
 from extensions.db import db
+from datetime import datetime
 from utils.validate_utils import validate_phone_number, validate_name, validate_gender, validate_id_type, validate_id_number
 
 
@@ -24,6 +26,7 @@ class VisitorController:
             return {'error': '用户未找到'}, 404
 
         return {"visitors": [visitor.to_dict() for visitor in user.visitors]}, 200
+
 
     @staticmethod
     def get_all_visitors(page=1, per_page=10):
@@ -185,6 +188,7 @@ class VisitorController:
 
         if visitor:
             visitor.is_deleted = True
+            visitor.deleted_at = datetime.now()
 
             # 提交数据库更新
             try:

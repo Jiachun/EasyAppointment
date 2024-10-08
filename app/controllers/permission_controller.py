@@ -7,8 +7,10 @@
 # 描述: 权限信息逻辑控制器
 """
 
+
 from app.models import Permission
 from extensions.db import db
+from datetime import datetime
 
 
 class PermissionController:
@@ -105,9 +107,10 @@ class PermissionController:
         if permission:
             # 检查权限是否被用户或权限关联
             if permission.is_associated():
-                return {'error': '权限有关联数据'}, 400
+                return {'error': '权限有关联数据无法删除'}, 400
 
             permission.is_deleted = True
+            permission.deleted_at = datetime.now()
 
             # 提交数据库更新
             try:

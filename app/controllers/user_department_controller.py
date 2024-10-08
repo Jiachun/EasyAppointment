@@ -7,8 +7,11 @@
 # 描述: 用户部门关联逻辑控制器。
 """
 
-from app.models import User, Department
+
+from app.models import User, Department, UserDepartment
 from extensions.db import db
+from datetime import datetime
+
 
 class UserDepartmentController:
     @staticmethod
@@ -21,7 +24,14 @@ class UserDepartmentController:
         if not user:
             return {'error': '用户未找到'}, 404
 
-        return {"departments": [department.to_dict() for department in user.departments]}, 200
+        # 获取用户的所有部门，确保未被逻辑删除
+        departments = []
+        for user_department in user.user_departments.filter_by(is_deleted=False):
+            department = user_department.department
+            if not department.is_deleted:
+                departments.append(department.to_dict())
+
+        return {"departments": departments}, 200
 
 
     @staticmethod
@@ -40,20 +50,24 @@ class UserDepartmentController:
         if not department:
             return {'error': '部门不存在'}, 404
 
-        # 校验用户是否已经拥有该部门
-        if department in user.departments:
-            return {'error': '该用户已属于该部门'}, 404
+        # 检查是否已经关联
+        existing_relation = UserDepartment.query.filter_by(user_id=user.id, department_id=department.id, is_deleted=False).first()
 
-        user.departments.append(department)
+        if existing_relation:
+            return {'error': '该用户已关联此部门'}, 400
+
+        # 添加新的用户-部门关联
+        new_relation = UserDepartment(user_id=user.id, department_id=department.id)
 
         # 提交数据库更新
         try:
+            db.session.add(new_relation)
             db.session.commit()
         except Exception as e:
             db.session.rollback()
             return {'error': '数据库更新失败: {}'.format(str(e))}, 500
 
-        return {"departments": [department.to_dict() for department in user.departments]}, 200
+        return {'message': '用户已成功添加到此部门'}, 200
 
 
     @staticmethod
@@ -72,11 +86,15 @@ class UserDepartmentController:
         if not department:
             return {'error': '部门不存在'}, 404
 
-        # 校验用户是否已经拥有该部门
-        if department not in user.departments:
-            return {'error': '该用户不属于该部门'}, 404
+        # 查找现有的关联记录
+        relation = UserDepartment.query.filter_by(user_id=user.id, department_id=department.id, is_deleted=False).first()
 
-        user.departments.remove(department)
+        if not relation:
+            return {'error': '用户未关联此部门'}, 404
+
+        # 执行逻辑删除
+        relation.is_deleted = True
+        relation.deleted_at = datetime.now()
 
         # 提交数据库更新
         try:
@@ -85,4 +103,4 @@ class UserDepartmentController:
             db.session.rollback()
             return {'error': '数据库更新失败: {}'.format(str(e))}, 500
 
-        return {"departments": [department.to_dict() for department in user.departments]}, 200
+        return {'message': '用户已成功从部门中移除'}, 200

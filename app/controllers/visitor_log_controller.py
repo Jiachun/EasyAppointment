@@ -7,11 +7,14 @@
 # 描述: 访客记录逻辑控制器
 """
 
+
 from datetime import datetime
 from app.models import VisitorLog, Campus, Department, User
 from extensions.db import db
+from datetime import datetime
 from utils.validate_utils import validate_visit_type, validate_name, validate_license_plate, validate_gender, validate_id_type, validate_id_number, validate_phone_number
 from utils.time_utils import compare_time_strings, is_time_before_now, is_time_within_three_days_future, are_times_on_same_day, string_to_datetime
+
 
 class VisitorLogController:
     @staticmethod
@@ -129,7 +132,6 @@ class VisitorLogController:
             if 'license_plate' in data:
                 if not data['license_plate'] or not validate_license_plate(data['license_plate']):
                     return {'error': '车牌格式有误'}, 400
-
 
         visitor_log = VisitorLog(
             visit_type=data['visit_type'],
@@ -308,6 +310,7 @@ class VisitorLogController:
 
         if visitor_log:
             visitor_log.is_deleted = True
+            visitor_log.deleted_at = datetime.now()
 
             # 提交数据库更新
             try:

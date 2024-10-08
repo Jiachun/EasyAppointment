@@ -7,8 +7,11 @@
 # 描述: 角色权限关联逻辑控制器。
 """
 
-from app.models import Role, Permission
+
+from app.models import Role, Permission, RolePermission
 from extensions.db import db
+from datetime import datetime
+
 
 class RolePermissionController:
     @staticmethod
@@ -21,7 +24,14 @@ class RolePermissionController:
         if not role:
             return {'error': '角色不存在'}, 404
 
-        return {"permissions": [permission.to_dict() for permission in role.permissions]}, 200
+        # 获取角色关联的权限，确保权限和关联表都未被逻辑删除
+        permissions = []
+        for role_permission in role.role_permissions.filter_by(is_deleted=False):
+            permission = role_permission.permission
+            if not permission.is_deleted:
+                permissions.append(permission.to_dict())
+
+        return {"permissions": permissions}, 200
 
 
     @staticmethod
@@ -43,7 +53,16 @@ class RolePermissionController:
         if not permissions:
             return {'error': '权限不存在或无效'}, 404
 
-        role.permissions.extend(permissions)
+        # 遍历每个权限，确保权限未与该角色关联
+        for permission in permissions:
+            existing_relation = RolePermission.query.filter_by(role_id=role.id, permission_id=permission.id, is_deleted=False).first()
+
+            if existing_relation:
+                continue  # 权限已经关联，跳过
+
+            # 创建新的角色-权限关联
+            new_role_permission = RolePermission(role_id=role.id, permission_id=permission.id)
+            db.session.add(new_role_permission)
 
         # 提交数据库更新
         try:
@@ -52,7 +71,7 @@ class RolePermissionController:
             db.session.rollback()
             return {'error': '数据库更新失败: {}'.format(str(e))}, 500
 
-        return {"permissions": [permission.to_dict() for permission in role.permissions]}, 200
+        return {'message': '权限已成功添加到角色'}, 200
 
 
     @staticmethod
@@ -74,10 +93,16 @@ class RolePermissionController:
         if not permissions:
             return {'error': '权限不存在或无效'}, 404
 
-        # 如果权限存在于角色中，移除关联
+        # 遍历每个权限，检查其是否已与该角色关联
         for permission in permissions:
-            if permission in role.permissions:
-                role.permissions.remove(permission)
+            existing_relation = RolePermission.query.filter_by(role_id=role.id, permission_id=permission.id, is_deleted=False).first()
+
+            if not existing_relation:
+                continue  # 如果没有找到有效的关联关系，跳过
+
+            # 执行逻辑删除操作
+            existing_relation.is_deleted = True
+            existing_relation.deleted_at = datetime.now()
 
         # 提交数据库更新
         try:
@@ -86,4 +111,4 @@ class RolePermissionController:
             db.session.rollback()
             return {'error': '数据库更新失败: {}'.format(str(e))}, 500
 
-        return {"permissions": [permission.to_dict() for permission in role.permissions]}, 200
+        return {'message': '权限已成功从角色中移除'}, 200

@@ -7,8 +7,10 @@
 # 描述: 角色信息逻辑控制器
 """
 
+
 from app.models import Role
 from extensions.db import db
+from datetime import datetime
 
 
 class RoleController:
@@ -105,9 +107,10 @@ class RoleController:
         if role:
             # 检查角色是否被用户或权限关联
             if role.is_associated():
-                return {'error': '角色有关联数据'}, 400
+                return {'error': '角色有关联数据无法删除'}, 400
 
             role.is_deleted = True
+            role.deleted_at = datetime.now()
 
             # 提交数据库更新
             try:

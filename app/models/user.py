@@ -20,7 +20,7 @@ class User(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)  # 用户ID
     username = Column(String(50), nullable=False, index=True)  # 用户名
     password_hash = Column(String(128), nullable=False)  # 密码
-    phone_number = Column(String(20), nullable=False, index=True)  # 手机号码
+    phone_number = Column(String(100), nullable=False, index=True)  # 手机号码
     openid = Column(String(128), nullable=True)  # OpenID
     name = Column(String(50), nullable=True, index=True)  # 姓名
     gender = Column(String(10), nullable=True)  # 性别

@@ -10,6 +10,7 @@
 from werkzeug.security import generate_password_hash
 from app.models import User
 from extensions.db import db
+from datetime import datetime
 from utils.validate_utils import validate_username, validate_phone_number, validate_name, validate_gender, validate_id_type, validate_id_number
 
 
@@ -186,6 +187,7 @@ class UserController:
 
         if user:
             user.is_deleted = True
+            user.deleted_at = datetime.now()
 
             # 提交数据库更新
             try:

@@ -7,8 +7,10 @@
 # 描述: 部门信息逻辑控制器
 """
 
+
 from app.models import Department, User
 from extensions.db import db
+from datetime import datetime
 
 
 class DepartmentController:
@@ -68,8 +70,8 @@ class DepartmentController:
             code=data['code'],
             name=data['name'],
             description=data.get('description') or '',
-            is_deleted=False,
             parent_id=data.get('parent_id') or None,
+            is_deleted=False,
         )
 
         # 提交数据库更新
@@ -131,10 +133,11 @@ class DepartmentController:
 
         if department:
             # 检查当前部门及其子部门是否有用户关联
-            if department.has_associated_users():
-                return {'error': '部门有关联数据'}, 400
+            if department.has_children() or department.has_associated_users():
+                return {'error': '部门有关联数据无法删除'}, 400
 
             department.is_deleted = True
+            department.deleted_at = datetime.now()
 
             # 提交数据库更新
             try:

@@ -32,7 +32,7 @@ def token_required(f):
         try:
             # 解码 Token，验证其有效性
             data = jwt.decode(token, Config.JWT_SECRET_KEY, algorithms=["HS256"])
-            current_user = User.query.get(data['id'])
+            current_user = User.query.filter_by(id=data['id'], is_deleted=False).first()
 
             if not current_user:
                 # 如果没有找到对应的用户，返回 403 错误

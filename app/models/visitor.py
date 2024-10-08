@@ -21,7 +21,7 @@ class Visitor(db.Model):
     gender = Column(String(10), nullable=False)  # 性别
     id_type = Column(String(50), nullable=False)  # 证件类型
     id_number = Column(String(100), nullable=False)  # 证件号码
-    phone_number = Column(String(20), nullable=False, index=True)  # 手机号码
+    phone_number = Column(String(100), nullable=False, index=True)  # 手机号码
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)  # 所属用户ID
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)  # 逻辑删除标记
     created_at = Column(DateTime, default=datetime.now(), nullable=False)  # 创建时间，用于记录何时创建

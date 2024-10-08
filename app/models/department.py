@@ -18,8 +18,8 @@ class Department(db.Model):
     __tablename__ = 'departments'
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 部门ID
-    code = Column(db.String(50), nullable=False, index=True)  # 部门编号，唯一
-    name = Column(String(100), nullable=False, index=True)  # 部门名称
+    code = Column(db.String(20), nullable=False, index=True)  # 部门编号，唯一
+    name = Column(String(50), nullable=False, index=True)  # 部门名称
     description = Column(String(255), nullable=True)  # 部门描述（可选）
     parent_id = Column(Integer, ForeignKey('departments.id'), nullable=True, index=True)  # 上级部门ID
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)  # 逻辑删除标记

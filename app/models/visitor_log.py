@@ -20,22 +20,22 @@ class VisitorLog(db.Model):
     visit_time = Column(DateTime, nullable=False, index=True)  # 来访时间
     entry_time = Column(DateTime, nullable=True)  # 进校时间
     leave_time = Column(DateTime, nullable=False)  # 离校时间
-    campus = Column(String(100), nullable=False)  # 校区
+    campus = Column(String(50), nullable=False)  # 校区
     visit_type = Column(String(50), nullable=False)  # 来访类型
-    visitor_name = Column(String(100), nullable=False, index=True)  # 访客姓名
-    visitor_phone_number = Column(String(20), nullable=False, index=True)  # 访客手机号码
+    visitor_name = Column(String(50), nullable=False, index=True)  # 访客姓名
+    visitor_phone_number = Column(String(100), nullable=False, index=True)  # 访客手机号码
     visitor_gender = Column(String(10), nullable=False)  # 访客性别
     visitor_id_type = Column(String(50), nullable=False)  # 访客证件类型
     visitor_id_number = Column(String(100), nullable=False)  # 访客证件号码
-    visitor_org = Column(String(100), nullable=True)  # 访客所属单位
-    accompanying_people = Column(db.String(255), nullable=True)  # 随行人员ID（逗号分隔）
-    visited_person_name = Column(String(100), nullable=True)  # 被访人姓名
-    visited_person_org = Column(String(100), nullable=True, index=True)  # 被访人部门
+    visitor_org = Column(String(50), nullable=True)  # 访客所属单位
+    accompanying_people = Column(String(100), nullable=True)  # 随行人员ID（逗号分隔）
+    visited_person_name = Column(String(50), nullable=True)  # 被访人姓名
+    visited_person_org = Column(String(50), nullable=True, index=True)  # 被访人部门
     reason = Column(String(255), nullable=True)  # 访问原因
     license_plate = Column(String(20), nullable=True)  # 车牌号码
     is_approved = Column(Boolean, nullable=True)  # 是否审批通过
     approved_at = Column(DateTime, nullable=True)  # 审批时间
-    approver = Column(String(100), nullable=True)  # 审批人
+    approver = Column(String(50), nullable=True)  # 审批人
     is_cancelled = Column(Boolean, nullable=True)  # 是否取消
     cancelled_at = Column(DateTime, nullable=True)  # 取消时间
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)  # 逻辑删除标记
