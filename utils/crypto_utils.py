@@ -15,7 +15,7 @@ from Crypto.Random import get_random_bytes
 from app.config import Config
 
 
-def generate_key_pair():
+def generate_rsa_key_pair():
     """生成 RSA 密钥对"""
     # 检查目录是否存在，不存在则创建
     keys_directory = Config.KEYS_DIR
@@ -138,20 +138,6 @@ def rsa_decrypt_aes_key(aes_key):
     return rsa_decrypt_str_to_bytes(load_private_key_from_file(), aes_key)
 
 
-def rsa_encrypt_data(data):
-    """加载 RSA 公钥对数据进行加密"""
-    if Config.PUBLIC_KEY:
-        return rsa_encrypt_str_to_str(load_public_key_from_env(), data)
-    return rsa_encrypt_str_to_str(load_public_key_from_file(), data)
-
-
-def rsa_decrypt_data(data):
-    """加载 RSA 私钥对数据进行解密"""
-    if Config.PRIVATE_KEY:
-        return rsa_decrypt_str_to_str(load_private_key_from_env(), data)
-    return rsa_decrypt_str_to_str(load_private_key_from_file(), data)
-
-
 def pad(data: bytes) -> bytes:
     """使用 PKCS7 填充数据"""
     block_size = AES.block_size
@@ -219,3 +205,17 @@ def aes256_decrypt_data(data):
         return decrypted_data
     except Exception as e:
         return {'error': str(e)}, 400  # 错误处理
+
+
+def aes256_encrypt_sensitive(data):
+    """使用 AES-256 密钥对敏感数据进行加密"""
+    key = base64.b64decode(Config.AES_KEY.encode('utf-8'))  # 加载密钥
+    encrypted_data = aes256_encrypt(data, key)  # 加密数据
+    return encrypted_data
+
+
+def aes256_decrypt_sensitive(encrypted_data):
+    """使用 AES-256 密钥对敏感数据进行解密"""
+    key = base64.b64decode(Config.AES_KEY.encode('utf-8'))  # 加载密钥
+    decrypted_data = aes256_decrypt(encrypted_data, key)  # 解密数据
+    return decrypted_data

@@ -10,6 +10,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from extensions.db import db
 from datetime import datetime
+from utils.crypto_utils import aes256_encrypt_sensitive, aes256_decrypt_sensitive
 
 
 # 访客模型
@@ -17,11 +18,11 @@ class Visitor(db.Model):
     __tablename__ = 'visitors'
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 访客ID
-    name = Column(String(50), nullable=False, index=True)  # 姓名
+    _name = Column('name', String(255), nullable=False, index=True)  # 姓名
     gender = Column(String(10), nullable=False)  # 性别
     id_type = Column(String(50), nullable=False)  # 证件类型
-    id_number = Column(String(100), nullable=False)  # 证件号码
-    phone_number = Column(String(100), nullable=False, index=True)  # 手机号码
+    _id_number = Column('id_number', String(255), nullable=False)  # 证件号码
+    _phone_number = Column('phone_number', String(255), nullable=False, index=True)  # 手机号码
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)  # 所属用户ID
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)  # 逻辑删除标记
     created_at = Column(DateTime, default=datetime.now, nullable=False)  # 创建时间，用于记录何时创建
@@ -30,6 +31,33 @@ class Visitor(db.Model):
 
     # 定义反向关系
     user = db.relationship("User", back_populates="visitors")
+
+    # name 属性
+    @property
+    def name(self):
+        return aes256_decrypt_sensitive(self._name)
+
+    @name.setter
+    def name(self, value):
+        self._name = aes256_encrypt_sensitive(value)
+
+    # id_number 属性
+    @property
+    def id_number(self):
+        return aes256_decrypt_sensitive(self._id_number)
+
+    @id_number.setter
+    def id_number(self, value):
+        self._id_number = aes256_encrypt_sensitive(value)
+
+    # phone_number 属性
+    @property
+    def phone_number(self):
+        return aes256_decrypt_sensitive(self._phone_number)
+
+    @phone_number.setter
+    def phone_number(self, value):
+        self._phone_number = aes256_encrypt_sensitive(value)
 
     def __repr__(self):
         return f'<Visitor {self.name}>'

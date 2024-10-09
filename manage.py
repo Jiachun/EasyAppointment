@@ -2,7 +2,7 @@ import click
 from flask_migrate import Migrate
 from app import create_app
 from extensions.db import db
-from utils.crypto_utils import generate_key_pair
+from utils.crypto_utils import generate_rsa_key_pair
 from app.models import User, Role, Permission, UserRole, RolePermission, Department, Campus, UserDepartment, Visitor, VisitorLog
 
 app = create_app()
@@ -15,7 +15,7 @@ migrate = Migrate(app, db)
 def generate_key():
     """创建数据库表"""
     with app.app_context():
-        generate_key_pair()
+        generate_rsa_key_pair()
         click.echo("密钥对已生成！")
 
 
