@@ -9,3 +9,7 @@ Werkzeug~=3.0.4
 redis~=5.1.1
 PyJWT~=2.9.0
 requests~=2.32.3
+Flask-CORS~=5.0.0
+flask-redis~=0.4.0
+mysqlclient~=2.1.1
+

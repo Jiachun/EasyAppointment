@@ -23,7 +23,8 @@ def get_campuses():
     page = int(request.args.get('page', 1))  # 默认为第1页
     per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
     response, status_code = CampusController.get_all_campuses(page, per_page)
-    return jsonify(aes256_encrypt_data(json.dumps(response))), status_code
+    # return jsonify(aes256_encrypt_data(json.dumps(response))), status_code
+    return jsonify(response), status_code
 
 
 @campus_api.route('/<int:campus_id>', methods=['GET'])

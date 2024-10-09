@@ -4,10 +4,15 @@ from app.config import DevelopmentConfig, ProductionConfig
 from extensions.db import init_db, init_redis
 from app.redprints import register_redprints
 from app.blueprints import register_blueprints
+from flask_cors import CORS
 
 
 def create_app():
     app = Flask(__name__)
+
+    # 允许所有跨域请求 
+    # TODO 安全设置
+    CORS(app)  
 
     # 根据环境变量加载配置
     if os.getenv('FLASK_ENV') == 'production':
