@@ -12,14 +12,15 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from extensions.db import db
 from datetime import datetime
+from utils.crypto_utils import aes256_encrypt_sensitive, aes256_decrypt_sensitive
 
 
 class Department(db.Model):
     __tablename__ = 'departments'
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 部门ID
-    code = Column(db.String(20), nullable=False, index=True)  # 部门编号，唯一
-    name = Column(String(50), nullable=False, index=True)  # 部门名称
+    _code = Column('code', String(255), nullable=False, index=True)  # 部门编号，唯一
+    _name = Column('name', String(255), nullable=False, index=True)  # 部门名称
     description = Column(String(255), nullable=True)  # 部门描述（可选）
     parent_id = Column(Integer, ForeignKey('departments.id'), nullable=True, index=True)  # 上级部门ID
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)  # 逻辑删除标记
@@ -45,6 +46,24 @@ class Department(db.Model):
         back_populates = 'parent',
         lazy='dynamic',  # 动态加载，适合处理大规模一对多关系
     )
+
+    # code 属性
+    @property
+    def code(self):
+        return aes256_decrypt_sensitive(self._code)
+
+    @code.setter
+    def code(self, value):
+        self._code = aes256_encrypt_sensitive(value)
+
+    # name 属性
+    @property
+    def name(self):
+        return aes256_decrypt_sensitive(self._name)
+
+    @name.setter
+    def name(self, value):
+        self._name = aes256_encrypt_sensitive(value)
 
     def __repr__(self):
         return f'<Department {self.name}>'

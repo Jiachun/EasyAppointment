@@ -28,10 +28,10 @@ class VisitorLog(db.Model):
     visitor_gender = Column(String(10), nullable=False)  # 访客性别
     visitor_id_type = Column(String(50), nullable=False)  # 访客证件类型
     _visitor_id_number = Column('visitor_id_number', String(255), nullable=False)  # 访客证件号码
-    visitor_org = Column(String(50), nullable=True)  # 访客所属单位
+    _visitor_org = Column('visitor_org', String(255), nullable=True)  # 访客所属单位
     accompanying_people = Column(String(100), nullable=True)  # 随行人员ID（逗号分隔）
     _visited_person_name = Column('visited_person_name', String(255), nullable=True)  # 被访人姓名
-    visited_person_org = Column(String(50), nullable=True, index=True)  # 被访人部门
+    _visited_person_org = Column('visited_person_org', String(255), nullable=True, index=True)  # 被访人部门
     reason = Column(String(255), nullable=True)  # 访问原因
     license_plate = Column(String(20), nullable=True)  # 车牌号码
     is_approved = Column(Boolean, nullable=True)  # 是否审批通过
@@ -71,6 +71,15 @@ class VisitorLog(db.Model):
     def visitor_phone_number(self, value):
         self._visitor_phone_number = aes256_encrypt_sensitive(value)
 
+    # visitor_org 属性
+    @property
+    def visitor_org(self):
+        return aes256_decrypt_sensitive(self._visitor_org)
+
+    @visitor_org.setter
+    def visitor_org(self, value):
+        self._visitor_org = aes256_encrypt_sensitive(value)
+
     # visited_person_name 属性
     @property
     def visited_person_name(self):
@@ -79,6 +88,15 @@ class VisitorLog(db.Model):
     @visited_person_name.setter
     def visited_person_name(self, value):
         self._visited_person_name = aes256_encrypt_sensitive(value)
+
+    # visited_person_org 属性
+    @property
+    def visited_person_org(self):
+        return aes256_decrypt_sensitive(self._visited_person_org)
+
+    @visited_person_org.setter
+    def visited_person_org(self, value):
+        self._visited_person_org = aes256_encrypt_sensitive(value)
 
     # approver 属性
     @property
