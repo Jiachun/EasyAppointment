@@ -11,6 +11,7 @@
 from app.models import Department, User
 from extensions.db import db
 from datetime import datetime
+import json
 
 
 class DepartmentController:
@@ -151,8 +152,16 @@ class DepartmentController:
 
 
     @staticmethod
-    def search_departments(filters, page=1, per_page=10):
+    def search_departments(json_string, page=1, per_page=10):
         """检索部门信息"""
+
+        # 将参数中的json字符串转换成字典
+        filters = {}
+        if json_string:
+            try:
+                filters = json.loads(json_string)  # 将字符串转换为字典
+            except ValueError:
+                return {"error": "无效的 JSON"}, 400
 
         # 创建查询对象
         query = Department.query
@@ -170,7 +179,7 @@ class DepartmentController:
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
-            "users": [department.to_dict() for department in paginated_departments.items],
+            "departments": [department.to_dict() for department in paginated_departments.items],
             "total_pages": paginated_departments.pages,
             "current_page": page,
             "per_page": per_page

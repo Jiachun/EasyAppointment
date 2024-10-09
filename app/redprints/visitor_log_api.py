@@ -57,7 +57,7 @@ def delete_visitor_log(visitor_log_id):
 @visitor_log_api.route('/search', methods=['GET'])
 def search_visitors():
     """检索访客记录的 API 接口"""
-    data = request.json
+    data = request.args.get('data')  # 从查询参数获取 JSON 字符串
     page = int(request.args.get('page', 1))  # 默认为第1页
     per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
     response, status_code = VisitorLogController.search_visitor_logs(data, page, per_page)

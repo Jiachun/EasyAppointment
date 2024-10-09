@@ -12,6 +12,7 @@ from datetime import datetime
 from app.models import VisitorLog, Campus, Department, User
 from extensions.db import db
 from datetime import datetime
+import json
 from utils.validate_utils import validate_visit_type, validate_name, validate_license_plate, validate_gender, validate_id_type, validate_id_number, validate_phone_number
 from utils.time_utils import compare_time_strings, is_time_before_now, is_time_within_three_days_future, are_times_on_same_day, string_to_datetime
 
@@ -324,8 +325,16 @@ class VisitorLogController:
 
 
     @staticmethod
-    def search_visitor_logs(filters, page=1, per_page=10):
+    def search_visitor_logs(json_string, page=1, per_page=10):
         """检索访客记录"""
+
+        # 将参数中的json字符串转换成字典
+        filters = {}
+        if json_string:
+            try:
+                filters = json.loads(json_string)  # 将字符串转换为字典
+            except ValueError:
+                return {"error": "无效的 JSON"}, 400
 
         # 创建查询对象
         query = VisitorLog.query
@@ -378,7 +387,7 @@ class VisitorLogController:
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
-            "users": [visitor_log.to_dict() for visitor_log in paginated_visitor_logs.items],
+            "visitor_logs": [visitor_log.to_dict() for visitor_log in paginated_visitor_logs.items],
             "total_pages": paginated_visitor_logs.pages,
             "current_page": page,
             "per_page": per_page

@@ -11,6 +11,7 @@
 from app.models import User, Visitor
 from extensions.db import db
 from datetime import datetime
+import json
 from utils.validate_utils import validate_phone_number, validate_name, validate_gender, validate_id_type, validate_id_number
 
 
@@ -202,8 +203,16 @@ class VisitorController:
 
 
     @staticmethod
-    def search_visitors(filters, page=1, per_page=10):
+    def search_visitors(json_string, page=1, per_page=10):
         """检索访客信息"""
+
+        # 将参数中的json字符串转换成字典
+        filters = {}
+        if json_string:
+            try:
+                filters = json.loads(json_string)  # 将字符串转换为字典
+            except ValueError:
+                return {"error": "无效的 JSON"}, 400
 
         # 创建查询对象
         query = Visitor.query
@@ -233,7 +242,7 @@ class VisitorController:
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
-            "users": [visitor.to_dict() for visitor in paginated_visitors.items],
+            "visitors": [visitor.to_dict() for visitor in paginated_visitors.items],
             "total_pages": paginated_visitors.pages,
             "current_page": page,
             "per_page": per_page
