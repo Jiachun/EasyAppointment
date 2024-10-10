@@ -11,6 +11,7 @@
 from app.models import Permission
 from extensions.db import db
 from datetime import datetime
+from sqlalchemy import asc, desc
 import json
 
 
@@ -125,7 +126,7 @@ class PermissionController:
 
 
     @staticmethod
-    def search_permissions(json_string, page=1, per_page=10):
+    def search_permissions(json_string, page=1, per_page=10, sort_field='id', sort_order='asc'):
         """检索权限信息"""
 
         # 将参数中的json字符串转换成字典
@@ -136,15 +137,28 @@ class PermissionController:
             except ValueError:
                 return {"error": "无效的 JSON"}, 400
 
+        # 检查 sort_field 是否是 Permission 模型中的有效列
+        if sort_field not in Permission.__table__.columns:
+            return {'error': '无效的排序字段'}, 400
+
         # 创建查询对象
-        query = Permission.query
+        query = Permission.query.filter(Permission.is_deleted==False)
 
         # 如果有角色名称的条件
         if filters.get('name'):
             query = query.filter(Permission.name.contains(filters['name']))
 
+        # 动态排序，确保sort_field是数据库表中的有效字段
+        if sort_order.lower() == 'asc':
+            query = query.order_by(asc(getattr(Permission, sort_field)))
+        elif sort_order.lower() == 'desc':
+            query = query.order_by(desc(getattr(Permission, sort_field)))
+        else:
+            # 如果排序顺序无效，则默认使用升序
+            query = query.order_by(asc(getattr(Permission, sort_field)))
+
         # 分页
-        paginated_permissions = query.filter(Permission.is_deleted==False).paginate(page=page, per_page=per_page, error_out=False)
+        paginated_permissions = query.paginate(page=page, per_page=per_page, error_out=False)
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {

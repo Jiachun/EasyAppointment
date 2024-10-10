@@ -2,7 +2,7 @@
 """
 # 文件名称: controllers/campus_controller.py
 # 作者: 罗嘉淳
-# 创建日期: 2024-10-01
+# 创建日期: 2024-10-10
 # 版本: 1.0
 # 描述: 校区信息逻辑控制器
 """
@@ -145,9 +145,9 @@ class CampusController:
             query = query.filter(Campus.name.contains(filters['name']))
 
         # 动态排序，确保sort_field是数据库表中的有效字段
-        if sort_order == 'asc' or 'ASC':
+        if sort_order.lower() == 'asc':
             query = query.order_by(asc(getattr(Campus, sort_field)))
-        elif sort_order == 'desc' or 'DESC':
+        elif sort_order.lower() == 'desc':
             query = query.order_by(desc(getattr(Campus, sort_field)))
         else:
             # 如果排序顺序无效，则默认使用升序

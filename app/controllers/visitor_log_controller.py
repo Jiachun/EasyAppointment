@@ -12,6 +12,7 @@ from datetime import datetime
 from app.models import VisitorLog, Campus, Department, User
 from extensions.db import db
 from datetime import datetime
+from sqlalchemy import asc, desc
 import json
 from utils.validate_utils import validate_visit_type, validate_name, validate_license_plate, validate_gender, validate_id_type, validate_id_number, validate_phone_number
 from utils.time_utils import compare_time_strings, is_time_before_now, is_time_within_three_days_future, are_times_on_same_day, string_to_datetime
@@ -325,7 +326,7 @@ class VisitorLogController:
 
 
     @staticmethod
-    def search_visitor_logs(json_string, page=1, per_page=10):
+    def search_visitor_logs(json_string, page=1, per_page=10, sort_field='id', sort_order='asc'):
         """检索访客记录"""
 
         # 将参数中的json字符串转换成字典
@@ -336,8 +337,12 @@ class VisitorLogController:
             except ValueError:
                 return {"error": "无效的 JSON"}, 400
 
+        # 检查 sort_field 是否是 VisitorLog 模型中的有效列
+        if sort_field not in VisitorLog.__table__.columns:
+            return {'error': '无效的排序字段'}, 400
+
         # 创建查询对象
-        query = VisitorLog.query
+        query = VisitorLog.query.filter(VisitorLog.is_deleted==False)
 
         # 如果有访问时间的条件
         if filters.get('start_time') and filters.get('end_date'):
@@ -382,8 +387,17 @@ class VisitorLogController:
         if filters.get('is_cancelled'):
             query = query.filter(VisitorLog.is_cancelled == filters['is_cancelled'])
 
+        # 动态排序，确保sort_field是数据库表中的有效字段
+        if sort_order.lower() == 'asc':
+            query = query.order_by(asc(getattr(VisitorLog, sort_field)))
+        elif sort_order.lower() == 'desc':
+            query = query.order_by(desc(getattr(VisitorLog, sort_field)))
+        else:
+            # 如果排序顺序无效，则默认使用升序
+            query = query.order_by(asc(getattr(VisitorLog, sort_field)))
+
         # 分页
-        paginated_visitor_logs = query.filter(VisitorLog.is_deleted==False).paginate(page=page, per_page=per_page, error_out=False)
+        paginated_visitor_logs = query.paginate(page=page, per_page=per_page, error_out=False)
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {

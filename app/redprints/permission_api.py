@@ -57,8 +57,10 @@ def delete_permission(permission_id):
 @permission_api.route('/search', methods=['GET'])
 def search_permissions():
     """检索权限信息的 API 接口"""
-    data = request.args.get('data')  # 从查询参数获取 JSON 字符串
+    filters = request.args.get('filters')  # 从查询参数获取 JSON 字符串
     page = int(request.args.get('page', 1))  # 默认为第1页
     per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
-    response, status_code = PermissionController.search_permissions(data, page, per_page)
+    sort_field = request.args.get('sort_field', 'id')  # 默认按id排序
+    sort_order = request.args.get('sort_order', 'asc')  # 默认升序
+    response, status_code = PermissionController.search_permissions(filters, page, per_page, sort_field, sort_order)
     return jsonify(response), status_code
