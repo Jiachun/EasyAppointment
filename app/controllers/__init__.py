@@ -9,3 +9,4 @@ from .user_department_controller import UserDepartmentController
 from .visitor_controller import VisitorController
 from .visitor_log_controller import VisitorLogController
 from .auth_controller import AuthController
+from .user_profile_controller import UserProfileController

@@ -16,11 +16,11 @@ def mask_name(name):
         return name[0] + '*' * (len(name) - 2) + name[-1]
 
 
-def mask_id_card(id_card):
-    # 身份证脱敏
-    return id_card[:6] + '********' + id_card[-4:]
+def mask_id_number(id_number):
+    # 证件号码脱敏
+    return id_number[:2] + '*' * (len(id_number) - 4) + id_number[-2:]
 
 
 def mask_phone_number(phone_number):
     # 手机号脱敏
-    return phone_number[:3] + '****' + phone_number[-4:]
+    return phone_number[:2] + '*' * (len(phone_number) - 7) + phone_number[-2:]
