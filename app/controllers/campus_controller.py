@@ -11,6 +11,7 @@
 from app.models import Campus
 from extensions.db import db
 from datetime import datetime
+import json
 
 
 class CampusController:
@@ -120,8 +121,16 @@ class CampusController:
 
 
     @staticmethod
-    def search_campuses(filters, page=1, per_page=10):
+    def search_campuses(json_string, page=1, per_page=10):
         """检索校区信息"""
+
+        # 将参数中的json字符串转换成字典
+        filters = {}
+        if json_string:
+            try:
+                filters = json.loads(json_string)  # 将字符串转换为字典
+            except ValueError:
+                return {"error": "无效的 JSON"}, 400
 
         # 创建查询对象
         query = Campus.query

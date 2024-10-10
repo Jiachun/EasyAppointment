@@ -11,6 +11,7 @@
 from app.models import Permission
 from extensions.db import db
 from datetime import datetime
+import json
 
 
 class PermissionController:
@@ -124,8 +125,16 @@ class PermissionController:
 
 
     @staticmethod
-    def search_permissions(filters, page=1, per_page=10):
+    def search_permissions(json_string, page=1, per_page=10):
         """检索权限信息"""
+
+        # 将参数中的json字符串转换成字典
+        filters = {}
+        if json_string:
+            try:
+                filters = json.loads(json_string)  # 将字符串转换为字典
+            except ValueError:
+                return {"error": "无效的 JSON"}, 400
 
         # 创建查询对象
         query = Permission.query
@@ -139,7 +148,7 @@ class PermissionController:
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
-            "users": [permission.to_dict() for permission in paginated_permissions.items],
+            "permissions": [permission.to_dict() for permission in paginated_permissions.items],
             "total_pages": paginated_permissions.pages,
             "current_page": page,
             "per_page": per_page

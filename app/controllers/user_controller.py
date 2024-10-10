@@ -11,6 +11,7 @@ from werkzeug.security import generate_password_hash
 from app.models import User
 from extensions.db import db
 from datetime import datetime
+import json
 from utils.validate_utils import validate_username, validate_phone_number, validate_name, validate_gender, validate_id_type, validate_id_number
 
 
@@ -201,8 +202,16 @@ class UserController:
 
 
     @staticmethod
-    def search_users(filters, page=1, per_page=10):
+    def search_users(json_string, page=1, per_page=10):
         """检索用户信息"""
+
+        # 将参数中的json字符串转换成字典
+        filters = {}
+        if json_string:
+            try:
+                filters = json.loads(json_string)  # 将字符串转换为字典
+            except ValueError:
+                return {"error": "无效的 JSON"}, 400
 
         # 创建查询对象
         query = User.query

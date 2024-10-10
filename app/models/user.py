@@ -11,6 +11,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from extensions.db import db
 from datetime import datetime
+from utils.crypto_utils import aes256_encrypt_sensitive, aes256_decrypt_sensitive
 
 
 # 用户模型
@@ -18,14 +19,14 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 用户ID
-    username = Column(String(50), nullable=False, index=True)  # 用户名
+    _username = Column('username', String(255), nullable=False, index=True)  # 用户名
     password_hash = Column(String(128), nullable=False)  # 密码
-    phone_number = Column(String(100), nullable=False, index=True)  # 手机号码
+    _phone_number = Column('phone_number', String(255), nullable=False, index=True)  # 手机号码
     openid = Column(String(128), nullable=True)  # OpenID
-    name = Column(String(50), nullable=True, index=True)  # 姓名
+    _name = Column('name', String(255), nullable=True, index=True)  # 姓名
     gender = Column(String(10), nullable=True)  # 性别
     id_type = Column(String(50), nullable=True)  # 证件类型
-    id_number = Column(String(100), nullable=True)  # 证件号码
+    _id_number = Column('id_number', String(255), nullable=True)  # 证件号码
     is_active = Column(Boolean, default=True)  # 激活标记
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)  # 逻辑删除标记
     created_at = Column(DateTime, default=datetime.now, nullable=False)  # 创建时间，用于记录何时创建
@@ -36,6 +37,42 @@ class User(db.Model):
     user_roles = relationship('UserRole', back_populates='user', lazy='dynamic')
     user_departments = relationship('UserDepartment', back_populates='user', lazy='dynamic')
     visitors = relationship("Visitor", back_populates="user", lazy='dynamic')
+
+    # username 属性
+    @property
+    def username(self):
+        return aes256_decrypt_sensitive(self._username)
+
+    @username.setter
+    def username(self, value):
+        self._username = aes256_encrypt_sensitive(value)
+
+    # phone_number 属性
+    @property
+    def phone_number(self):
+        return aes256_decrypt_sensitive(self._phone_number)
+
+    @phone_number.setter
+    def phone_number(self, value):
+        self._phone_number = aes256_encrypt_sensitive(value)
+
+    # name 属性
+    @property
+    def name(self):
+        return aes256_decrypt_sensitive(self._name)
+
+    @name.setter
+    def name(self, value):
+        self._name = aes256_encrypt_sensitive(value)
+
+    # id_number 属性
+    @property
+    def id_number(self):
+        return aes256_decrypt_sensitive(self._id_number)
+
+    @id_number.setter
+    def id_number(self, value):
+        self._id_number = aes256_encrypt_sensitive(value)
 
     def __repr__(self):
         return f'<User {self.username}>'

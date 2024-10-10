@@ -38,6 +38,9 @@ class Config:
     # 从环境变量中加载 AppSecret
     WECHAT_APP_SECRET = os.getenv('WECHAT_APP_SECRET')
 
+    # 从环境变量中加载 AES KEY
+    AES_KEY = os.getenv('AES_KEY')
+
     # 从环境变量中加载 PUBLIC KEY
     PUBLIC_KEY = os.getenv('PUBLIC_KEY')
 
