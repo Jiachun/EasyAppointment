@@ -135,7 +135,7 @@ class CampusController:
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
-            "users": [campus.to_dict() for campus in paginated_campuses.items],
+            "campuses": [campus.to_dict() for campus in paginated_campuses.items],
             "total_pages": paginated_campuses.pages,
             "current_page": page,
             "per_page": per_page
