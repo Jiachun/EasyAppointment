@@ -145,9 +145,9 @@ class CampusController:
             query = query.filter(Campus.name.contains(filters['name']))
 
         # 动态排序，确保sort_field是数据库表中的有效字段
-        if sort_order == 'asc':
+        if sort_order == 'asc' or 'ASC':
             query = query.order_by(asc(getattr(Campus, sort_field)))
-        elif sort_order == 'desc':
+        elif sort_order == 'desc' or 'DESC':
             query = query.order_by(desc(getattr(Campus, sort_field)))
         else:
             # 如果排序顺序无效，则默认使用升序
