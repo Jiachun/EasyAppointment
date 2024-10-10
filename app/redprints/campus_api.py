@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 # 文件名称: redprints/campus_api.py
-# 作者: 李业
+# 作者: 罗嘉淳
 # 创建日期: 2024-10-01
 # 版本: 1.0
 # 描述: 校区信息 API 接口
@@ -63,5 +63,7 @@ def search_campuses():
     data = request.args.get('data')  # 从查询参数获取 JSON 字符串
     page = int(request.args.get('page', 1))  # 默认为第1页
     per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
-    response, status_code = CampusController.search_campuses(data, page, per_page)
+    sort_field = request.args.get('sort_field', 'id')
+    sort_order = request.args.get('sort_order', 'asc')
+    response, status_code = CampusController.search_campuses(data, page, per_page, sort_field, sort_order)
     return jsonify(response), status_code

@@ -76,7 +76,7 @@ def downgrade_db(revision):
 @app.cli.command("run-server")
 def run_server():
     """运行服务器"""
-    app.run()
+    app.run(threaded=True)
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 # 文件名称: controllers/campus_controller.py
-# 作者: 李业
+# 作者: 罗嘉淳
 # 创建日期: 2024-10-01
 # 版本: 1.0
 # 描述: 校区信息逻辑控制器
@@ -11,6 +11,7 @@
 from app.models import Campus
 from extensions.db import db
 from datetime import datetime
+from sqlalchemy import asc, desc
 import json
 
 
@@ -121,7 +122,7 @@ class CampusController:
 
 
     @staticmethod
-    def search_campuses(json_string, page=1, per_page=10):
+    def search_campuses(json_string, page=1, per_page=10, sort_field='id', sort_order='asc'):
         """检索校区信息"""
 
         # 将参数中的json字符串转换成字典
@@ -132,15 +133,28 @@ class CampusController:
             except ValueError:
                 return {"error": "无效的 JSON"}, 400
 
+        # 检查 sort_field 是否是 Campus 模型中的有效列
+        if sort_field not in Campus.__table__.columns:
+            return {'error': '无效的排序字段'}, 400
+
         # 创建查询对象
-        query = Campus.query
+        query = Campus.query.filter(Campus.is_deleted==False)
 
         # 如果有校区名称的条件
         if filters.get('name'):
             query = query.filter(Campus.name.contains(filters['name']))
 
+        # 动态排序，确保sort_field是数据库表中的有效字段
+        if sort_order == 'asc':
+            query = query.order_by(asc(getattr(Campus, sort_field)))
+        elif sort_order == 'desc':
+            query = query.order_by(desc(getattr(Campus, sort_field)))
+        else:
+            # 如果排序顺序无效，则默认使用升序
+            query = query.order_by(asc(getattr(Campus, sort_field)))
+
         # 分页
-        paginated_campuses = query.filter(Campus.is_deleted==False).paginate(page=page, per_page=per_page, error_out=False)
+        paginated_campuses = query.paginate(page=page, per_page=per_page, error_out=False)
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return {
