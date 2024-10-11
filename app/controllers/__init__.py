@@ -10,3 +10,4 @@ from .visitor_controller import VisitorController
 from .visitor_log_controller import VisitorLogController
 from .auth_controller import AuthController
 from .user_profile_controller import UserProfileController
+from .frequent_visitor_controller import FrequentVisitorController

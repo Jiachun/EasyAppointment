@@ -12,6 +12,7 @@ from sqlalchemy.orm import relationship
 from extensions.db import db
 from datetime import datetime
 from utils.crypto_utils import aes256_encrypt_sensitive, aes256_decrypt_sensitive
+from utils.mask_utils import mask_name, mask_id_number, mask_phone_number
 
 
 # 用户模型
@@ -86,7 +87,17 @@ class User(db.Model):
             'id_type': self.id_type,
             'id_number': self.id_number,
             'phone_number': self.phone_number,
-            'is_active': self.is_active,
+        }
+
+    def to_mask(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'name': mask_name(self.name),
+            'gender': self.gender,
+            'id_type': self.id_type,
+            'id_number': mask_id_number(self.id_number),
+            'phone_number': mask_phone_number(self.phone_number),
         }
 
     def has_permission(self, permission_name):

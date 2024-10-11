@@ -9,7 +9,6 @@
 
 
 from extensions.db import db
-from utils.mask_utils import mask_name, mask_id_number, mask_phone_number
 from utils.validate_utils import validate_name, validate_gender, validate_id_type, validate_id_number
 
 
@@ -17,13 +16,7 @@ class UserProfileController:
     @staticmethod
     def get_user_profile(user):
         """获取当前用户个人信息"""
-        return {
-            "name": mask_name(user.name),
-            "phone_number": mask_phone_number(user.phone_number),
-            "gender": user.gender,
-            "id_type": user.id_type,
-            "id_number": mask_id_number(user.id_number),
-        }, 200
+        return user.to_mask(), 200
 
 
     @staticmethod
@@ -66,10 +59,4 @@ class UserProfileController:
             db.session.rollback()
             return {'error': '数据库更新失败: {}'.format(str(e))}, 500
 
-        return {
-            "name": mask_name(user.name),
-            "phone_number": mask_phone_number(user.phone_number),
-            "gender": user.gender,
-            "id_type": user.id_type,
-            "id_number": mask_id_number(user.id_number),
-        }, 200
+        return user.to_mask(), 200

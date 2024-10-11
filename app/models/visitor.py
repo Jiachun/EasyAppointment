@@ -10,6 +10,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from extensions.db import db
 from datetime import datetime
+from utils.mask_utils import mask_name, mask_id_number, mask_phone_number
 from utils.crypto_utils import aes256_encrypt_sensitive, aes256_decrypt_sensitive
 
 
@@ -70,5 +71,16 @@ class Visitor(db.Model):
             'id_type': self.id_type,
             'id_number': self.id_number,
             'phone_number': self.phone_number,
+            'user_id': self.user_id,
+        }
+
+    def to_mask(self):
+        return {
+            'id': self.id,
+            'name': mask_name(self.name),
+            'gender': self.gender,
+            'id_type': self.id_type,
+            'id_number': mask_id_number(self.id_number),
+            'phone_number': mask_phone_number(self.phone_number),
             'user_id': self.user_id,
         }

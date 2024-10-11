@@ -108,6 +108,7 @@ class VisitorController:
             id_type=data['id_type'],
             id_number=data['id_number'],
             phone_number=data['phone_number'],
+            user_id=data['user_id'],
             is_deleted=False,
         )
 

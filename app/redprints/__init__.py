@@ -10,6 +10,7 @@ from .visitor_api import visitor_api
 from .visitor_log_api import visitor_log_api
 from .auth_api import auth_api
 from .user_profile_api import user_profile_api
+from .frequent_visitor_api import frequent_visitor_api
 
 
 def register_redprints(app):
@@ -25,3 +26,4 @@ def register_redprints(app):
     app.register_blueprint(visitor_log_api, url_prefix='/api/visitor_logs')  # 注册访客记录管理API
     app.register_blueprint(auth_api, url_prefix='/api/auth')  # 注册访客记录管理API
     app.register_blueprint(user_profile_api, url_prefix='/api/user_profile')  # 注册用户个人信息管理API
+    app.register_blueprint(frequent_visitor_api, url_prefix='/api/frequent_visitors')  # 注册常用访客信息管理API
