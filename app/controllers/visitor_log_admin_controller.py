@@ -403,3 +403,38 @@ class VisitorLogAdminController:
             "current_page": page,
             "per_page": per_page
         }, 200
+
+
+    @staticmethod
+    def approve_visitor_log(user, visitor_log_id, data):
+        """审批访客记录"""
+
+        # 查找现有的访客记录
+        visitor_log = VisitorLog.query.filter_by(id=visitor_log_id, is_deleted=False).first()
+        if not visitor_log:
+            return {'error': '访客记录未找到'}, 404
+
+        # 已审批的访客记录无法修改
+        if visitor_log.is_approved is not None:
+            return {'error': '该访客记录已被审批'}, 400
+
+        # 已取消的访客记录无法修改
+        if visitor_log.is_cancelled:
+            return {'error': '该访客记录已被取消'}, 400
+
+        if 'is_approved' not in data:
+            return {'error': '审批标记不能为空'}, 400
+        if not isinstance(data['is_approved'], bool):
+            return {'error': '审批标记格式有误'}, 400
+
+        visitor_log.is_approved = data['is_approved']
+        visitor_log.approver = user.name
+        visitor_log.approved_at = datetime.now()
+
+        # 提交数据库更新
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+        return visitor_log.to_dict(), 200

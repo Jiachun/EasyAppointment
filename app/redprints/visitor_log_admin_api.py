@@ -55,7 +55,7 @@ def delete_visitor_log(visitor_log_id):
 
 
 @visitor_log_admin_api.route('/search', methods=['GET'])
-def search_visitors():
+def search_visitor_logs():
     """检索访客记录的 API 接口"""
     filters = request.args.get('filters')  # 从查询参数获取 JSON 字符串
     page = int(request.args.get('page', 1))  # 默认为第1页
@@ -63,4 +63,11 @@ def search_visitors():
     sort_field = request.args.get('sort_field', 'id')  # 默认按id排序
     sort_order = request.args.get('sort_order', 'asc')  # 默认升序
     response, status_code = VisitorLogAdminController.search_visitor_logs(filters, page, per_page, sort_field, sort_order)
+    return jsonify(response), status_code
+
+
+@visitor_log_admin_api.route('/<int:visitor_log_id>/approve', methods=['POST'])
+def approve_visitor_log(current_user, visitor_log_id):
+    data = request.json
+    response, status_code = VisitorLogAdminController.approve_visitor_log(current_user, visitor_log_id, data)
     return jsonify(response), status_code
