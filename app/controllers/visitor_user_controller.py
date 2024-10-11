@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-# 文件名称: controllers/frequent_visitor_controller.py
+# 文件名称: controllers/visitor_user_controller.py
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-11
 # 版本: 1.0
-# 描述: 常用访客信息逻辑控制器
+# 描述: 普通用户的访客信息逻辑控制器
 """
 
 
@@ -14,9 +14,9 @@ from datetime import datetime
 from utils.validate_utils import validate_name, validate_gender, validate_id_type, validate_id_number, validate_phone_number
 
 
-class FrequentVisitorController:
+class VisitorUserController:
     @staticmethod
-    def get_frequent_visitors(user):
+    def get_all_visitors(user):
         """获取当前用户的所有访客信息"""
 
         # 查找现有的访客信息
@@ -27,7 +27,7 @@ class FrequentVisitorController:
 
 
     @staticmethod
-    def get_frequent_visitor(user, visitor_id):
+    def get_visitor_by_id(user, visitor_id):
         """根据访客ID获取访客信息"""
 
         # 查找现有的访客信息
@@ -41,7 +41,7 @@ class FrequentVisitorController:
 
 
     @staticmethod
-    def create_frequent_visitor(user, data):
+    def create_visitor(user, data):
         """为当前用户添加访客信息"""
 
         # 校验姓名格式是否正确
@@ -101,7 +101,7 @@ class FrequentVisitorController:
 
 
     @staticmethod
-    def delete_frequent_visitor(user, visitor_id):
+    def delete_visitor(user, visitor_id):
         """根据访客ID删除访客信息"""
 
         # 查找现有的访客信息

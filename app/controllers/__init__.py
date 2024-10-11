@@ -6,8 +6,9 @@ from .department_controller import DepartmentController
 from .user_role_controller import UserRoleController
 from .role_permission_controller import RolePermissionController
 from .user_department_controller import UserDepartmentController
-from .visitor_controller import VisitorController
-from .visitor_log_controller import VisitorLogController
+from .visitor_admin_controller import VisitorAdminController
+from .visitor_log_admin_controller import VisitorLogAdminController
 from .auth_controller import AuthController
 from .user_profile_controller import UserProfileController
-from .frequent_visitor_controller import FrequentVisitorController
+from .visitor_user_controller import VisitorUserController
+from .visitor_log_user_controller import VisitorLogUserController

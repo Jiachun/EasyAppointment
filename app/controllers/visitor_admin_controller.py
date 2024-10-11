@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-# 文件名称: controllers/visitor_controller.py
+# 文件名称: controllers/visitor_admin_controller.py
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-04
 # 版本: 1.0
-# 描述: 访客信息逻辑控制器。
+# 描述: 管理员的访客信息逻辑控制器。
 """
 
 
@@ -16,7 +16,7 @@ import json
 from utils.validate_utils import validate_phone_number, validate_name, validate_gender, validate_id_type, validate_id_number
 
 
-class VisitorController:
+class VisitorAdminController:
     @staticmethod
     def get_visitors_by_user(user_id):
         """获取指定用户的所有访客信息"""

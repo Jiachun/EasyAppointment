@@ -9,7 +9,7 @@
 
 
 from flask import Blueprint, jsonify, request
-from app.controllers import UserController, VisitorController, DepartmentController
+from app.controllers import UserController, VisitorAdminController, DepartmentController
 
 
 user_api = Blueprint('user_api', __name__)
@@ -64,7 +64,7 @@ def get_departments(user_id):
 @user_api.route('/<int:user_id>/visitors', methods=['GET'])
 def get_visitors(user_id):
     """获取指定用户所有访客信息的 API 接口"""
-    response, status_code = VisitorController.get_visitors_by_user(user_id)
+    response, status_code = VisitorAdminController.get_visitors_by_user(user_id)
     return jsonify(response), status_code
 
 

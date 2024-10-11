@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-# 文件名称: controllers/visitor_log_controller.py
+# 文件名称: controllers/visitor_log_admin_controller.py
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-05
 # 版本: 1.0
-# 描述: 访客记录逻辑控制器
+# 描述: 管理员的访客记录逻辑控制器
 """
 
 
-from datetime import datetime
 from app.models import VisitorLog, Campus, Department, User
 from extensions.db import db
 from datetime import datetime
@@ -18,7 +17,7 @@ from utils.validate_utils import validate_visit_type, validate_name, validate_li
 from utils.time_utils import compare_time_strings, is_time_before_now, is_time_within_three_days_future, are_times_on_same_day, string_to_datetime
 
 
-class VisitorLogController:
+class VisitorLogAdminController:
     @staticmethod
     def get_all_visitor_logs(page=1, per_page=10):
         """获取所有访客记录"""
@@ -156,9 +155,8 @@ class VisitorLogController:
             approval_time=None,
             entry_time=None,
             is_cancelled=False,
+            is_active=True,
             is_deleted=False,
-            created_at=datetime.now(),
-            updated_at=datetime.now()
         )
 
         # 提交数据库更新
@@ -291,7 +289,6 @@ class VisitorLogController:
         visitor_log.reason = data.get('reason') or ''
         visitor_log.accompanying_people = data.get('accompanying_people') or ''
         visitor_log.license_plate = data.get('license_plate') or ''
-        visitor_log.update_time = datetime.now()
 
         # 提交数据库更新
         try:

@@ -7,10 +7,13 @@
 # 描述: 访客记录模型文件。
 """
 
+
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from datetime import datetime
 from extensions.db import db
 from utils.crypto_utils import aes256_encrypt_sensitive, aes256_decrypt_sensitive
+from utils.mask_utils import mask_name, mask_id_number, mask_phone_number, mask_org_name
+from .visitor import Visitor
 
 
 # 访客记录模型
@@ -39,6 +42,7 @@ class VisitorLog(db.Model):
     _approver = Column('approver', String(255), nullable=True)  # 审批人
     is_cancelled = Column(Boolean, nullable=True)  # 是否取消
     cancelled_at = Column(DateTime, nullable=True)  # 取消时间
+    is_active = Column(Boolean, default=True, nullable=False, index=True)  # 是否激活，当关联用户注销后设置为冻结状态
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)  # 逻辑删除标记
     created_at = Column(DateTime, default=datetime.now, nullable=False)  # 创建时间，用于记录何时创建
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)  # 更新时间，用于记录何时更新
@@ -124,7 +128,6 @@ class VisitorLog(db.Model):
             'visitor_id_type': self.visitor_id_type,
             'visitor_id_number': self.visitor_id_number,
             'visitor_org': self.visitor_org,
-            'accompanying_people': self.accompanying_people,
             'visited_person_name': self.visited_person_name,
             'visited_person_org': self.visited_person_org,
             'reason': self.reason,
@@ -134,4 +137,52 @@ class VisitorLog(db.Model):
             'approver': self.approver,
             'is_cancelled': self.is_cancelled,
             'cancelled_at': self.cancelled_at,
+            'accompanying_people': self.get_accompanying_people_info(need_mask=False),
         }
+
+    def to_mask(self):
+        return {
+            'id': self.id,
+            'visit_time': self.visit_time,
+            'entry_time': self.entry_time,
+            'leave_time': self.leave_time,
+            'campus': self.campus,
+            'visit_type': self.visit_type,
+            'visitor_name': mask_name(self.visitor_name),
+            'visitor_phone_number': mask_phone_number(self.visitor_phone_number),
+            'visitor_gender': self.visitor_gender,
+            'visitor_id_type': self.visitor_id_type,
+            'visitor_id_number': mask_id_number(self.visitor_id_number),
+            'visitor_org': mask_org_name(self.visitor_org),
+            'visited_person_name': mask_name(self.visited_person_name),
+            'visited_person_org': mask_org_name(self.visited_person_org),
+            'reason': self.reason,
+            'license_plate': self.license_plate,
+            'is_approved': self.is_approved,
+            'approved_at': self.approved_at,
+            'approver': mask_name(self.approver),
+            'is_cancelled': self.is_cancelled,
+            'cancelled_at': self.cancelled_at,
+            'accompanying_people': self.get_accompanying_people_info(need_mask=True),
+        }
+
+    def get_accompanying_people_info(self, need_mask=True):
+        """获取访客记录中随行人员的详细信息"""
+
+        # 将 accompanying_people 逗号分隔的字符串转换为 ID 列表
+        accompanying_people_ids = self.accompanying_people.split(',')
+
+        # 转换为整数列表（假设 ID 都是数字）
+        accompanying_people_ids = [int(visitor_id) for visitor_id in accompanying_people_ids]
+
+        # 根据 ID 列表查询所有对应的访客信息
+        accompanying_people = Visitor.query.filter(Visitor.id.in_(accompanying_people_ids)).all()
+
+        accompanying_people_info = []
+        # 判断数据是否需要脱敏处理
+        if need_mask is True:
+            accompanying_people_info = [visitor.to_mask() for visitor in accompanying_people]
+        if need_mask is False:
+            accompanying_people_info = [visitor.to_dict() for visitor in accompanying_people]
+
+        return accompanying_people_info
