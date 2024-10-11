@@ -22,7 +22,6 @@ class VisitorLog(db.Model):
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 访客记录ID
     visit_time = Column(DateTime, nullable=False, index=True)  # 来访时间
-    entry_time = Column(DateTime, nullable=True)  # 进校时间
     leave_time = Column(DateTime, nullable=False)  # 离校时间
     campus = Column(String(50), nullable=False)  # 校区
     visit_type = Column(String(50), nullable=False)  # 来访类型
@@ -38,8 +37,11 @@ class VisitorLog(db.Model):
     reason = Column(String(255), nullable=True)  # 访问原因
     license_plate = Column(String(20), nullable=True)  # 车牌号码
     is_approved = Column(Boolean, nullable=True)  # 是否审批通过
+    approval_note = Column(String(255), nullable=True)  # 审批备注字段
     approved_at = Column(DateTime, nullable=True)  # 审批时间
     _approver = Column('approver', String(255), nullable=True)  # 审批人
+    entry_time = Column(DateTime, nullable=True)  # 进校时间
+    _verifier = Column('verifier', String(255), nullable=True)  # 核验人
     is_cancelled = Column(Boolean, nullable=True)  # 是否取消
     cancelled_at = Column(DateTime, nullable=True)  # 取消时间
     is_active = Column(Boolean, default=True, nullable=False, index=True)  # 是否激活，当关联用户注销后设置为冻结状态
@@ -111,6 +113,15 @@ class VisitorLog(db.Model):
     def approver(self, value):
         self._approver = aes256_encrypt_sensitive(value)
 
+    # verifier 属性
+    @property
+    def verifier(self):
+        return aes256_decrypt_sensitive(self._verifier)
+
+    @verifier.setter
+    def verifier(self, value):
+        self._verifier = aes256_encrypt_sensitive(value)
+
     def __repr__(self):
         return f'<VisitorLog {self.id}>'
 
@@ -118,7 +129,6 @@ class VisitorLog(db.Model):
         return {
             'id': self.id,
             'visit_time': self.visit_time,
-            'entry_time': self.entry_time,
             'leave_time': self.leave_time,
             'campus': self.campus,
             'visit_type': self.visit_type,
@@ -133,8 +143,11 @@ class VisitorLog(db.Model):
             'reason': self.reason,
             'license_plate': self.license_plate,
             'is_approved': self.is_approved,
+            'approval_note': self.approval_note,
             'approved_at': self.approved_at,
             'approver': self.approver,
+            'entry_time': self.entry_time,
+            'verifier': self.verifier,
             'is_cancelled': self.is_cancelled,
             'cancelled_at': self.cancelled_at,
             'accompanying_people': self.get_accompanying_people_info(need_mask=False),
@@ -144,7 +157,6 @@ class VisitorLog(db.Model):
         return {
             'id': self.id,
             'visit_time': self.visit_time,
-            'entry_time': self.entry_time,
             'leave_time': self.leave_time,
             'campus': self.campus,
             'visit_type': self.visit_type,
@@ -159,8 +171,11 @@ class VisitorLog(db.Model):
             'reason': self.reason,
             'license_plate': self.license_plate,
             'is_approved': self.is_approved,
+            'approval_note': self.approval_note,
             'approved_at': self.approved_at,
             'approver': mask_name(self.approver),
+            'entry_time': self.entry_time,
+            'verifier': mask_name(self.verifier),
             'is_cancelled': self.is_cancelled,
             'cancelled_at': self.cancelled_at,
             'accompanying_people': self.get_accompanying_people_info(need_mask=True),

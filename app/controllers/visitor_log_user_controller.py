@@ -47,6 +47,40 @@ class VisitorLogUserController:
 
 
     @staticmethod
+    def get_visitor_logs_by_department(user, page=1, per_page=10, status='all'):
+        """根据用户所属部门获取预约记录"""
+
+        # 获取用户的部门名称列表
+        departments = user.get_departments()
+
+        # 根据部门过滤预约记录
+        query = VisitorLog.query.filter(VisitorLog.visited_person_org.in_(departments), VisitorLog.is_deleted == False)
+
+        # 按照状态检索预约记录
+        if status.lower() == 'all':
+            query = query.filter(VisitorLog.is_cancelled == False)
+        elif status.lower() == 'wait':
+            query = query.filter(VisitorLog.is_approved.is_(None), VisitorLog.is_cancelled == False)
+        elif status.lower() == 'allow':
+            query = query.filter(VisitorLog.is_approved == True)
+        elif status.lower() == 'deny':
+            query = query.filter(VisitorLog.is_approved == False)
+        else:
+            query = query.filter(VisitorLog.is_cancelled == False)
+
+        # 分页查询
+        paginated_visitor_logs = query.order_by(desc(VisitorLog.create_time)).paginate(page=page, per_page=per_page, error_out=False)
+
+        # 返回分页后的数据、总页数、当前页和每页记录数
+        return {
+            "visitor_logs": [visitor_log.to_mask() for visitor_log in paginated_visitor_logs.items],
+            "total_pages": paginated_visitor_logs.pages,
+            "current_page": page,
+            "per_page": per_page
+        }, 200
+
+
+    @staticmethod
     def get_visitor_log_by_id(user, visitor_log_id):
         """根据ID获取预约记录"""
         visitor_log = VisitorLog.query.filter_by(id=visitor_log_id, visitor_phone_number=user.phone_number, is_deleted=False, is_active=True).first()
@@ -128,11 +162,13 @@ class VisitorLogUserController:
             reason=data.get('reason') or '',
             accompanying_people=data.get('accompanying_people') or '',
             license_plate=data.get('license_plate') or '',
-            approver=None,
             is_approved=None,
-            approval_time=None,
+            approval_note=None,
+            approver=None,
+            approval_at=None,
             entry_time=None,
             is_cancelled=False,
+            cancelled_at=None,
             is_active=True,
             is_deleted=False,
         )
@@ -153,8 +189,7 @@ class VisitorLogUserController:
         """更新预约记录"""
 
         # 查找现有的访客记录
-        visitor_log = VisitorLog.query.filter_by(id=visitor_log_id, visitor_phone_number=user.phone_number,
-                                                 is_deleted=False, is_active=True).first()
+        visitor_log = VisitorLog.query.filter_by(id=visitor_log_id, visitor_phone_number=user.phone_number, is_deleted=False, is_active=True).first()
 
         if not visitor_log:
             return {'error': '预约记录未找到'}, 404
@@ -260,7 +295,7 @@ class VisitorLogUserController:
 
         # 已审批的预约记录无法取消
         if visitor_log.is_approved is not None:
-            return {'error': '已审批的预约记录无法修改'}, 400
+            return {'error': '已审批的预约记录无法取消'}, 400
 
         # 已取消的访客记录无法再次取消
         if visitor_log.is_cancelled:

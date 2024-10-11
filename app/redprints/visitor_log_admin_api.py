@@ -71,3 +71,9 @@ def approve_visitor_log(current_user, visitor_log_id):
     data = request.json
     response, status_code = VisitorLogAdminController.approve_visitor_log(current_user, visitor_log_id, data)
     return jsonify(response), status_code
+
+
+@visitor_log_admin_api.route('/<int:visitor_log_id>/verify', methods=['POST'])
+def verify_visitor_log(current_user, visitor_log_id):
+    response, status_code = VisitorLogAdminController.verify_visitor_log(current_user, visitor_log_id)
+    return jsonify(response), status_code

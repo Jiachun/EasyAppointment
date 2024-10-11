@@ -32,6 +32,16 @@ def get_visitor_log_by_id(current_user, visitor_log_id):
     return jsonify(response), status_code
 
 
+@visitor_log_user_api.route('/department', methods=['GET'])
+def get_visitor_logs_by_department(current_user):
+    """根据用户所在部门获取访客记录的 API 接口"""
+    page = int(request.args.get('page', 1))  # 默认为第1页
+    per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
+    status = request.args.get('status', 'all')  # 默认所有记录
+    response, status_code = VisitorLogUserController.get_visitor_logs_by_department(current_user, page, per_page, status)
+    return jsonify(response), status_code
+
+
 @visitor_log_user_api.route('/', methods=['POST'])
 def create_visitor_log(current_user):
     """新增预约记录的 API 接口"""

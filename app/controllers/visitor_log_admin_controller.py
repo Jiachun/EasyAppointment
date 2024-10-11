@@ -14,7 +14,7 @@ from datetime import datetime
 from sqlalchemy import asc, desc
 import json
 from utils.validate_utils import validate_visit_type, validate_name, validate_license_plate, validate_gender, validate_id_type, validate_id_number, validate_phone_number
-from utils.time_utils import compare_time_strings, is_time_before_now, is_time_within_three_days_future, are_times_on_same_day, string_to_datetime
+from utils.time_utils import compare_time_strings, is_time_before_now, is_time_within_three_days_future, are_times_on_same_day, string_to_datetime, datetime_to_string, is_time_after_now
 
 
 class VisitorLogAdminController:
@@ -150,11 +150,13 @@ class VisitorLogAdminController:
             reason=data.get('reason') or '',
             accompanying_people=data.get('accompanying_people') or '',
             license_plate=data.get('license_plate') or '',
-            approver=None,
             is_approved=None,
-            approval_time=None,
+            approval_note=None,
+            approver=None,
+            approved_at=None,
             entry_time=None,
             is_cancelled=False,
+            cancelled_at=None,
             is_active=True,
             is_deleted=False,
         )
@@ -407,7 +409,7 @@ class VisitorLogAdminController:
 
     @staticmethod
     def approve_visitor_log(user, visitor_log_id, data):
-        """审批访客记录"""
+        """审批预约申请"""
 
         # 查找现有的访客记录
         visitor_log = VisitorLog.query.filter_by(id=visitor_log_id, is_deleted=False).first()
@@ -422,14 +424,52 @@ class VisitorLogAdminController:
         if visitor_log.is_cancelled:
             return {'error': '该访客记录已被取消'}, 400
 
+        # 校验审批标记
         if 'is_approved' not in data:
             return {'error': '审批标记不能为空'}, 400
         if not isinstance(data['is_approved'], bool):
             return {'error': '审批标记格式有误'}, 400
 
+        # 校验审批备注是否为空
+        if 'approval_note' not in data or not data['approval_note'] or len(data['approval_note']) < 2:
+            return {'error': '审批备注不能为空且至少为2个字符'}, 400
+
+
         visitor_log.is_approved = data['is_approved']
+        visitor_log.approval_note = data['approval_note']
         visitor_log.approver = user.name
         visitor_log.approved_at = datetime.now()
+
+        # 提交数据库更新
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+        return visitor_log.to_dict(), 200
+
+
+    @staticmethod
+    def verify_visitor_log(user, visitor_log_id):
+        """来访登记"""
+
+        # 查询访客记录
+        visitor_log = VisitorLog.query.filter_by(id=visitor_log_id, is_deleted=False).first()
+
+        if not visitor_log:
+            return {'error': '访客记录未找到'}, 404
+
+        if visitor_log.is_approved is not True:
+            return {'error': '该访客记录尚未审批通过'}, 400
+
+        if is_time_after_now(datetime_to_string(visitor_log.visit_time)):
+            return {'error': '当前未到预约时间'}
+
+        if is_time_before_now(datetime_to_string(visitor_log.leave_time)):
+            return {'error': '当前已过预约时间'}
+
+        visitor_log.entry_time = datetime.now()
+        visitor_log.verifier = user.name
 
         # 提交数据库更新
         try:

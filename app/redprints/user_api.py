@@ -56,7 +56,7 @@ def delete_user(user_id):
 
 @user_api.route('/<int:user_id>/departments', methods=['GET'])
 def get_departments(user_id):
-    """获取指定用户所有访客信息的 API 接口"""
+    """获取指定用户所有部门信息的 API 接口"""
     response, status_code = DepartmentController.get_departments_by_user(user_id)
     return jsonify(response), status_code
 

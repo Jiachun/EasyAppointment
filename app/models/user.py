@@ -111,4 +111,7 @@ class User(db.Model):
                     return True
         return False
 
-
+    def get_departments(self):
+        """获取用户所属的所有部门"""
+        # 遍历用户的所有有效的部门关联记录，返回部门名称列表
+        return [user_department.department.name for user_department in self.user_departments.filter_by(is_deleted=False)]

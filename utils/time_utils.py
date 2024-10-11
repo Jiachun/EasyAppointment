@@ -35,6 +35,13 @@ def is_time_before_now(time_str, fmt="%Y-%m-%d %H:%M:%S"):
     return time < now
 
 
+def is_time_after_now(time_str, fmt="%Y-%m-%d %H:%M:%S"):
+    # 计算字符串时间是否在当前时间之后
+    time = datetime.strptime(time_str, fmt)
+    now = datetime.now()
+    return time > now
+
+
 def are_times_on_same_day(time_str1, time_str2, fmt="%Y-%m-%d %H:%M:%S"):
     # 计算两个字符串时间节点是否在同一天
     time1 = datetime.strptime(time_str1, fmt)
