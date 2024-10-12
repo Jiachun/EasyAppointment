@@ -47,6 +47,10 @@ class AuthController:
             # 清除失败次数
             redis_client.delete(f"login_attempts_{username}")
 
+            # 检测用户激活状态
+            if not user.is_active:
+                return {'error': '用户已处于停用状态'}, 400
+
             # 生成 token
             now = datetime.now()
             token = jwt.encode(
@@ -184,6 +188,10 @@ class AuthController:
             # 如果用户不存在
             return {'error': '用户尚未绑定'}, 403
 
+        # 检测用户激活状态
+        if not user.is_active:
+            return {'error': '用户已处于停用状态'}, 400
+
         # 生成 token
         now = datetime.now()
         token = jwt.encode(
@@ -234,6 +242,10 @@ class AuthController:
 
         try:
             if user:
+                # 检测用户激活状态
+                if not user.is_active:
+                    return {'error': '用户已处于停用状态'}, 400
+
                 # 如果用户存在，绑定openid
                 user.openid = openid
             else:
@@ -295,3 +307,64 @@ class AuthController:
         redis_client.delete(user.id)
 
         return {'message': '用户解绑成功'}, 200
+
+
+    @staticmethod
+    def activate(data):
+        """激活用户账户"""
+
+        # 获取用户ID
+        user_id = data.get('user_id')
+
+        if not user_id:
+            return {'error': '缺少用户ID'}, 400
+
+        # 查找用户
+        user = User.query.filter_by(id=user_id, is_deleted=False).first()
+
+        if not user:
+            return {'error': '用户不存在'}, 404
+
+        # 激活用户
+        user.is_active = True
+
+        # 提交数据库更新
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+
+        return {'message': '用户账户已激活'}, 200
+
+
+    @staticmethod
+    def deactivate(data):
+        """停用用户"""
+
+        # 获取用户ID
+        user_id = data.get('user_id')
+
+        if not user_id:
+            return {'error': '缺少用户ID'}, 400
+
+        # 查找目标用户
+        user = User.query.filter_by(id=user_id, is_deleted=False).first()
+
+        if not user:
+            return {'error': '用户不存在'}, 404
+
+        if not user.is_active:
+            return {'error': '用户已处于停用状态'}, 400
+
+        # 停用用户
+        user.is_active = False
+
+        # 提交数据库更新
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+
+        return {'message': '用户已成功停用'}, 200

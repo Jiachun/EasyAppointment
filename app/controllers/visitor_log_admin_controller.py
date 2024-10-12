@@ -477,4 +477,4 @@ class VisitorLogAdminController:
         except Exception as e:
             db.session.rollback()
             return {'error': '数据库更新失败: {}'.format(str(e))}, 500
-        return visitor_log.to_dict(), 200
+        return {'message': '访客登记成功'}, 200

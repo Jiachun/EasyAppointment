@@ -5,8 +5,10 @@
 /keys/private_key.pem
 /keys/public_key.pem
 
+# 忽略数据库迁移文件
+migrations
+
 # 忽略
 venv/
 .VENV/
-migrations/
 __pycache__/
