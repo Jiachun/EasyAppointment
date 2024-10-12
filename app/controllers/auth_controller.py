@@ -12,7 +12,7 @@ import requests
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from app.config import Config
-from app.models import User
+from app.models import User, VisitorLog
 from extensions.db import redis_client, db
 from utils.random_utils import generate_random_string
 import jwt
@@ -310,7 +310,35 @@ class AuthController:
 
 
     @staticmethod
-    def activate(data):
+    def unregister(user, data):
+        """清除用户数据"""
+
+        # 标记用户为已删除
+        user.is_deleted = True
+        user.deleted_at = datetime.now()
+
+        # 查找该用户关联的访客记录
+        visitor_logs = VisitorLog.query.filter_by(visitor_phone_number=user.phone_number, is_active=True,
+                                                  is_deleted=False).all()
+
+        for visitor_log in visitor_logs:
+            visitor_log.is_active = False
+
+        # 提交数据库更新
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+
+        # 从 Redis 中删除用户的 Token
+        redis_client.delete(user.id)
+
+        return {'message': '用户删除成功'}, 200
+
+
+    @staticmethod
+    def activate_user(data):
         """激活用户账户"""
 
         # 获取用户ID
@@ -339,7 +367,7 @@ class AuthController:
 
 
     @staticmethod
-    def deactivate(data):
+    def deactivate_user(data):
         """停用用户"""
 
         # 获取用户ID
@@ -360,11 +388,13 @@ class AuthController:
         # 停用用户
         user.is_active = False
 
-        # 提交数据库更新
+        # 提交数据库更新，并从 Redis 中删除用户的 Token
         try:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
             return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+
+        redis_client.delete(user.id)
 
         return {'message': '用户已成功停用'}, 200

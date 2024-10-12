@@ -56,7 +56,7 @@ def wechat_login():
 
 
 @auth_api.route('/bind', methods=['POST'])
-def bind():
+def bind_user():
     data = request.json
     response, status_code = AuthController.bind_user(data)
     return jsonify(response), status_code
@@ -64,8 +64,35 @@ def bind():
 
 @auth_api.route('/unbind', methods=['POST'])
 @token_required
-def unbind():
+def unbind_user():
     """用户解绑的 API 接口"""
     data = request.json
     response, status_code = AuthController.unbind_user(data)
+    return jsonify(response), status_code
+
+
+@auth_api.route('/unregister', methods=['POST'])
+@token_required
+def unregister(current_user):
+    """清除用户数据的 API 接口"""
+    data = request.json
+    response, status_code = AuthController.unregister(current_user, data)
+    return jsonify(response), status_code
+
+
+@auth_api.route('/activate', methods=['POST'])
+@token_required
+def activate_user():
+    """激活用户的 API 接口"""
+    data = request.json
+    response, status_code = AuthController.activate_user(data)
+    return jsonify(response), status_code
+
+
+@auth_api.route('/deactivate', methods=['POST'])
+@token_required
+def deactivate_user():
+    """停用用户的 API 接口"""
+    data = request.json
+    response, status_code = AuthController.deactivate_user(data)
     return jsonify(response), status_code

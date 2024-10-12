@@ -9,7 +9,7 @@
 
 from werkzeug.security import generate_password_hash
 from app.models import User, VisitorLog
-from extensions.db import db
+from extensions.db import db, redis_client
 from datetime import datetime
 from sqlalchemy import asc, desc
 import json
@@ -187,30 +187,30 @@ class UserController:
         # 查找现有的用户信息
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
 
-        if not user:
-            return {'error': '用户未找到'}, 404
+        if user:
+            # 标记用户为已删除
+            user.is_deleted = True
+            user.deleted_at = datetime.now()
 
-        # 检查用户是否已经被删除
-        if user.is_deleted:
-            return {'error': '用户已删除'}, 400
+            # 查找该用户关联的访客记录
+            visitor_logs = VisitorLog.query.filter_by(visitor_phone_number=user.phone_number, is_active=True, is_deleted=False).all()
 
-        user.is_deleted = True
-        user.deleted_at = datetime.now()
+            for visitor_log in visitor_logs:
+                visitor_log.is_active = False
 
-        # 查找该用户关联的访客记录
-        visitor_logs = VisitorLog.query.filter_by(visitor_phone_number=user.phone_number, is_active=True, is_deleted=False).all()
+            # 提交数据库更新
+            try:
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                return {'error': '数据库更新失败: {}'.format(str(e))}, 500
 
-        for visitor_log in visitor_logs:
-            visitor_log.is_active = False
+            # 从 Redis 中删除用户的 Token
+            redis_client.delete(user.id)
 
-        # 提交数据库更新
-        try:
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return {'message': '用户删除成功'}, 200
 
-        return {'message': '用户删除成功'}, 200
+        return {'error': '用户未找到'}, 404
 
 
     @staticmethod
