@@ -8,6 +8,7 @@
 """
 
 from flask import Blueprint, jsonify, request
+
 from app.controllers import AuthController
 from utils.decorators import token_required
 

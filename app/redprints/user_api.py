@@ -4,13 +4,12 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-01
 # 版本: 1.0
-# 描述: 用户信息 API 接口
+# 描述: 用户信息管理的 API 接口
 """
 
-
 from flask import Blueprint, jsonify, request
-from app.controllers import UserController, VisitorAdminController, DepartmentController
 
+from app.controllers import UserController, VisitorAdminController
 
 user_api = Blueprint('user_api', __name__)
 
@@ -54,20 +53,6 @@ def delete_user(user_id):
     return jsonify(response), status_code
 
 
-@user_api.route('/<int:user_id>/departments', methods=['GET'])
-def get_departments(user_id):
-    """获取指定用户所有部门信息的 API 接口"""
-    response, status_code = DepartmentController.get_departments_by_user(user_id)
-    return jsonify(response), status_code
-
-
-@user_api.route('/<int:user_id>/visitors', methods=['GET'])
-def get_visitors(user_id):
-    """获取指定用户所有访客信息的 API 接口"""
-    response, status_code = VisitorAdminController.get_visitors_by_user(user_id)
-    return jsonify(response), status_code
-
-
 @user_api.route('/search', methods=['GET'])
 def search_users():
     """检索用户信息的 API 接口"""
@@ -77,4 +62,11 @@ def search_users():
     sort_field = request.args.get('sort_field', 'id')  # 默认按id排序
     sort_order = request.args.get('sort_order', 'asc')  # 默认升序
     response, status_code = UserController.search_users(filters, page, per_page, sort_field, sort_order)
+    return jsonify(response), status_code
+
+
+@user_api.route('/<int:user_id>/visitors', methods=['GET'])
+def get_visitors(user_id):
+    """根据用户ID获取指定用户所有访客信息的 API 接口"""
+    response, status_code = VisitorAdminController.get_visitors_by_user(user_id)
     return jsonify(response), status_code

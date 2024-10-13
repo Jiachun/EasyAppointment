@@ -7,10 +7,12 @@
 # 描述: 用户模型文件。
 """
 
+from datetime import datetime
+
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
+
 from extensions.db import db
-from datetime import datetime
 from utils.crypto_utils import aes256_encrypt_sensitive, aes256_decrypt_sensitive
 from utils.mask_utils import mask_name, mask_id_number, mask_phone_number
 
@@ -114,4 +116,5 @@ class User(db.Model):
     def get_departments(self):
         """获取用户所属的所有部门"""
         # 遍历用户的所有有效的部门关联记录，返回部门名称列表
-        return [user_department.department.name for user_department in self.user_departments.filter_by(is_deleted=False)]
+        return [user_department.department.name for user_department in
+                self.user_departments.filter_by(is_deleted=False)]

@@ -37,7 +37,7 @@ class CampusController:
 
     @staticmethod
     def get_campus_by_id(campus_id):
-        """根据ID获取校区信息"""
+        """根据校区ID获取校区信息"""
         campus = Campus.query.filter_by(id=campus_id, is_deleted=False).first()
         if campus:
             return format_response(True, campus.to_dict()), 200
