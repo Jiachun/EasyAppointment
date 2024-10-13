@@ -4,14 +4,15 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-09-29
 # 版本: 1.0
-# 描述: 部门模型文件。
+# 描述: 部门的模型文件。
 """
 
+from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import relationship
+
 from extensions.db import db
-from datetime import datetime
 from utils.crypto_utils import aes256_encrypt_sensitive, aes256_decrypt_sensitive
 
 
@@ -36,14 +37,14 @@ class Department(db.Model):
     parent = relationship(
         'Department',
         remote_side=[id],
-        back_populates = 'children',
+        back_populates='children',
         lazy='select'  # 使用懒加载，默认值 'select'
     )
 
     # children 指向所有下级部门
     children = relationship(
         'Department',
-        back_populates = 'parent',
+        back_populates='parent',
         lazy='dynamic',  # 动态加载，适合处理大规模一对多关系
     )
 

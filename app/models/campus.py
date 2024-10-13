@@ -4,13 +4,14 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-01
 # 版本: 1.0
-# 描述: 校区模型文件。
+# 描述: 校区的模型文件。
 """
 
+from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
+
 from extensions.db import db
-from datetime import datetime
 
 
 # 访客记录模型

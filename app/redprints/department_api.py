@@ -4,13 +4,12 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-04
 # 版本: 1.0
-# 描述: 部门信息 API 接口
+# 描述: 部门信息管理的 API 接口
 """
 
-
 from flask import Blueprint, jsonify, request
-from app.controllers import DepartmentController
 
+from app.controllers import DepartmentController
 
 department_api = Blueprint('department_api', __name__)
 

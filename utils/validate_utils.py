@@ -88,6 +88,7 @@ def validate_id_number(id_type, id_number):
         return validate_tw_pass(id_number)
     return False
 
+
 def validate_license_plate(license_plate):
     # 正则表达式匹配车牌格式
     pattern = (
@@ -112,7 +113,20 @@ def validate_license_plate(license_plate):
     )
     return bool(re.match(pattern, license_plate))
 
+
 def validate_visit_type(visit_type):
     # 正则表达式匹配访客类型
     pattern = r"^因公访问|因私访问|社会公众$"
     return bool(re.match(pattern, visit_type))
+
+
+def validate_campus_name(campus_name):
+    # 正则表达式匹配校区名称
+    pattern = r'^[\u4e00-\u9fa5a-zA-Z0-9\s]+$'
+    return bool(re.match(pattern, campus_name))
+
+
+def validate_department_name(department_name):
+    # 正则表达式匹配部门名称
+    pattern = r'^[\u4e00-\u9fa5a-zA-Z0-9\s]+$'
+    return bool(re.match(pattern, department_name))

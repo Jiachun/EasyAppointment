@@ -4,13 +4,12 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-04
 # 版本: 1.0
-# 描述: 权限信息 API 接口
+# 描述: 权限信息管理的 API 接口
 """
 
-
 from flask import Blueprint, jsonify, request
-from app.controllers import PermissionController
 
+from app.controllers import PermissionController
 
 permission_api = Blueprint('permission_api', __name__)
 

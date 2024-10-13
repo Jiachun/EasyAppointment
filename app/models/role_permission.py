@@ -4,14 +4,15 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-09-29
 # 版本: 1.0
-# 描述: 角色权限关联模型文件。
+# 描述: 角色和权限关联的模型文件。
 """
 
+from datetime import datetime
 
 from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
+
 from extensions.db import db
-from datetime import datetime
 
 
 # 角色和权限的关联模型

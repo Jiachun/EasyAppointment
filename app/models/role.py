@@ -4,14 +4,15 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-09-29
 # 版本: 1.0
-# 描述: 角色模型文件。
+# 描述: 角色的模型文件。
 """
 
+from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
+
 from extensions.db import db
-from datetime import datetime
 
 
 # 角色模型
@@ -20,7 +21,7 @@ class Role(db.Model):
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # 角色ID
     name = Column(String(50), nullable=False, index=True)  # 角色名称，唯一
-    description = Column(String(255))  # 角色描述（可选）
+    description = Column(String(255), nullable=True)  # 角色描述（可选）
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)  # 逻辑删除标记
     created_at = Column(DateTime, default=datetime.now, nullable=False)  # 创建时间，用于记录何时创建
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)  # 更新时间，用于记录何时更新

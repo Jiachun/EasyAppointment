@@ -4,15 +4,12 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-10
 # 版本: 1.0
-# 描述: 校区信息 API 接口
+# 描述: 校区信息管理的 API 接口
 """
 
-
-import json
 from flask import Blueprint, jsonify, request
-from app.controllers import CampusController
-from utils.crypto_utils import aes256_encrypt_data
 
+from app.controllers import CampusController
 
 campus_api = Blueprint('campus_api', __name__)
 
