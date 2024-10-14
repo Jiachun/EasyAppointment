@@ -59,10 +59,10 @@ class RoleController:
 
         # 提交数据库更新
         try:
-            # 使用事务确保数据库操作原子性
-            with db.session.begin():
-                db.session.add(role)
+            db.session.add(role)
+            db.session.commit()
         except Exception as e:
+            db.session.rollback()
             return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
         return format_response(True, role.to_dict()), 200
@@ -90,10 +90,9 @@ class RoleController:
 
         # 提交数据库更新
         try:
-            # 使用事务确保数据库操作原子性
-            with db.session.begin():
-                db.session.add(role)
+            db.session.commit()
         except Exception as e:
+            db.session.rollback()
             return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
         return format_response(True, role.to_dict()), 200
@@ -115,10 +114,9 @@ class RoleController:
 
             # 提交数据库更新
             try:
-                # 使用事务确保数据库操作原子性
-                with db.session.begin():
-                    db.session.add(role)
+                db.session.commit()
             except Exception as e:
+                db.session.rollback()
                 return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
             return format_response(True, {'message': '角色删除成功'}), 200
 
