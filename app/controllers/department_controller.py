@@ -48,13 +48,13 @@ class DepartmentController:
         """创建部门信息"""
 
         # 校验部门编号是否存在并有效
-        if 'code' not in data or not data['code'].strip() or len(data['code'].strip()) < 2:
+        if 'code' not in data or not data['code'] or len(data['code'].strip()) < 2:
             return format_response(False, error='部门编号不能为空且至少为2个字符'), 400
         if Department.query.filter_by(code=data['code'].strip(), is_deleted=False).first():
             return format_response(False, error='部门编号已存在'), 400
 
         # 校验部门名称是否有效
-        if 'name' not in data or not data['name'].strip() or len(data['name'].strip()) < 2:
+        if 'name' not in data or not data['name'] or len(data['name'].strip()) < 2:
             return format_response(False, error='部门名称不能为空且至少为2个字符'), 400
         if not validate_department_name(data['name'].strip()):
             return format_response(False, error='部门名称只能包含中文字符、字母、数字和空格'), 400
@@ -82,14 +82,14 @@ class DepartmentController:
         """更新部门信息"""
 
         # 校验部门编号是否有效
-        if 'code' not in data or not data['code'].strip() or len(data['code'].strip()) < 2:
+        if 'code' not in data or not data['code'] or len(data['code'].strip()) < 2:
             return format_response(False, error='部门编号不能为空且至少为2个字符'), 400
         if Department.query.filter(Department.code == data['code'].strip(), Department.id != department_id,
                                    Department.is_deleted == False).first():
             return format_response(False, error='部门编号已存在'), 400
 
         # 校验部门名称是否有效
-        if 'name' not in data or not data['name'].strip() or len(data['name'].strip()) < 2:
+        if 'name' not in data or not data['name'] or len(data['name'].strip()) < 2:
             return format_response(False, error='部门名称不能为空且至少为2个字符'), 400
         if not validate_department_name(data['name'].strip()):
             return format_response(False, error='部门名称只能包含中文字符、字母、数字和空格'), 400

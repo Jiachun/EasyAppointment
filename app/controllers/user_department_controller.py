@@ -7,10 +7,11 @@
 # 描述: 用户部门关联逻辑控制器。
 """
 
+from datetime import datetime
 
 from app.models import User, Department, UserDepartment
 from extensions.db import db
-from datetime import datetime
+from utils.format_utils import format_response
 
 
 class UserDepartmentController:
@@ -22,7 +23,7 @@ class UserDepartmentController:
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
 
         if not user:
-            return {'error': '用户未找到'}, 404
+            return format_response(False, error='用户未找到'), 404
 
         # 获取用户的所有部门，确保未被逻辑删除
         departments = []
@@ -31,30 +32,32 @@ class UserDepartmentController:
             if not department.is_deleted:
                 departments.append(department.to_dict())
 
-        return {"departments": departments}, 200
-
+        return format_response(True, {"departments": departments}), 200
 
     @staticmethod
     def add_department_to_user(user_id, department_id):
         """为用户添加部门"""
 
+        if not user_id:
+            return format_response(False, error='用户ID不能为空'), 400
         if not department_id:
-            return {'error': '部门ID不能为空'}, 400
+            return format_response(False, error='部门ID不能为空'), 400
 
         # 查找现有的用户和部门信息
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
         department = Department.query.filter_by(id=department_id, is_deleted=False).first()
 
         if not user:
-            return {'error': '用户未找到'}, 404
+            return format_response(False, error='用户未找到'), 404
         if not department:
-            return {'error': '部门不存在'}, 404
+            return format_response(False, error='部门不存在'), 404
 
         # 检查是否已经关联
-        existing_relation = UserDepartment.query.filter_by(user_id=user.id, department_id=department.id, is_deleted=False).first()
+        existing_relation = UserDepartment.query.filter_by(user_id=user.id, department_id=department.id,
+                                                           is_deleted=False).first()
 
         if existing_relation:
-            return {'error': '该用户已关联此部门'}, 400
+            return format_response(False, error='该用户已关联此部门'), 400
 
         # 添加新的用户-部门关联
         new_relation = UserDepartment(user_id=user.id, department_id=department.id)
@@ -65,32 +68,34 @@ class UserDepartmentController:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
-        return {'message': '用户已成功添加到此部门'}, 200
-
+        return format_response(True, {'message': '用户已成功添加到此部门'}), 200
 
     @staticmethod
     def remove_department_from_user(user_id, department_id):
         """从用户中移除部门"""
 
+        if not user_id:
+            return format_response(False, error='用户ID不能为空'), 400
         if not department_id:
-            return {'error': '部门ID不能为空'}, 400
+            return format_response(False, error='部门ID不能为空'), 400
 
         # 查找现有的用户和部门信息
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
         department = Department.query.filter_by(id=department_id, is_deleted=False).first()
 
         if not user:
-            return {'error': '用户未找到'}, 404
+            return format_response(False, error='用户未找到'), 404
         if not department:
-            return {'error': '部门不存在'}, 404
+            return format_response(False, error='部门不存在'), 404
 
         # 查找现有的关联记录
-        relation = UserDepartment.query.filter_by(user_id=user.id, department_id=department.id, is_deleted=False).first()
+        relation = UserDepartment.query.filter_by(user_id=user.id, department_id=department.id,
+                                                  is_deleted=False).first()
 
         if not relation:
-            return {'error': '用户未关联此部门'}, 404
+            return format_response(False, error='用户未关联此部门'), 404
 
         # 执行逻辑删除
         relation.is_deleted = True
@@ -101,6 +106,6 @@ class UserDepartmentController:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
-        return {'message': '用户已成功从部门中移除'}, 200
+        return format_response(True, {'message': '用户已成功从部门中移除'}), 200

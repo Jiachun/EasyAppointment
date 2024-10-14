@@ -4,13 +4,12 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-10
 # 版本: 1.0
-# 描述: 普通用户的访客信息 API 接口
+# 描述: 普通用户的访客信息管理的 API 接口
 """
 
-
 from flask import Blueprint, jsonify, request
-from app.controllers import VisitorUserController
 
+from app.controllers import VisitorUserController
 
 visitor_user_api = Blueprint('visitor_user_api', __name__)
 

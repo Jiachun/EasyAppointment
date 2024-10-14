@@ -4,9 +4,8 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-05
 # 版本: 1.0
-# 描述: 实现了时间的计算。
+# 描述: 实现了时间的计算和转换功能。
 """
-
 
 from datetime import datetime, timedelta
 

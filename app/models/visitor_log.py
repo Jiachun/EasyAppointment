@@ -7,9 +7,10 @@
 # 描述: 访客记录模型文件。
 """
 
+from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from datetime import datetime
+
 from extensions.db import db
 from utils.crypto_utils import aes256_encrypt_sensitive, aes256_decrypt_sensitive
 from utils.mask_utils import mask_name, mask_id_number, mask_phone_number, mask_org_name

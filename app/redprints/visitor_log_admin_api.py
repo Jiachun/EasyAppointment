@@ -4,13 +4,12 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-04
 # 版本: 1.0
-# 描述: 管理员的访客记录 API 接口
+# 描述: 管理员的访客记录管理的 API 接口
 """
 
-
 from flask import Blueprint, jsonify, request
-from app.controllers import VisitorLogAdminController
 
+from app.controllers import VisitorLogAdminController
 
 visitor_log_admin_api = Blueprint('visitor_log_admin_api', __name__)
 
@@ -62,12 +61,14 @@ def search_visitor_logs():
     per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
     sort_field = request.args.get('sort_field', 'id')  # 默认按id排序
     sort_order = request.args.get('sort_order', 'asc')  # 默认升序
-    response, status_code = VisitorLogAdminController.search_visitor_logs(filters, page, per_page, sort_field, sort_order)
+    response, status_code = VisitorLogAdminController.search_visitor_logs(filters, page, per_page, sort_field,
+                                                                          sort_order)
     return jsonify(response), status_code
 
 
 @visitor_log_admin_api.route('/<int:visitor_log_id>/approve', methods=['POST'])
 def approve_visitor_log(current_user, visitor_log_id):
+    """审批预约记录的 API 接口"""
     data = request.json
     response, status_code = VisitorLogAdminController.approve_visitor_log(current_user, visitor_log_id, data)
     return jsonify(response), status_code
@@ -75,5 +76,6 @@ def approve_visitor_log(current_user, visitor_log_id):
 
 @visitor_log_admin_api.route('/<int:visitor_log_id>/verify', methods=['POST'])
 def verify_visitor_log(current_user, visitor_log_id):
+    """来访登记的 API 接口"""
     response, status_code = VisitorLogAdminController.verify_visitor_log(current_user, visitor_log_id)
     return jsonify(response), status_code

@@ -7,11 +7,13 @@
 # 描述: 访客模型文件。
 """
 
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
-from extensions.db import db
 from datetime import datetime
-from utils.mask_utils import mask_name, mask_id_number, mask_phone_number
+
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
+
+from extensions.db import db
 from utils.crypto_utils import aes256_encrypt_sensitive, aes256_decrypt_sensitive
+from utils.mask_utils import mask_name, mask_id_number, mask_phone_number
 
 
 # 访客模型

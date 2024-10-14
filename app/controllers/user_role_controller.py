@@ -4,13 +4,14 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-04
 # 版本: 1.0
-# 描述: 用户角色关联逻辑控制器。
+# 描述: 用户和角色关联的逻辑控制器。
 """
 
+from datetime import datetime
 
 from app.models import User, Role, UserRole
 from extensions.db import db
-from datetime import datetime
+from utils.format_utils import format_response
 
 
 class UserRoleController:
@@ -22,7 +23,7 @@ class UserRoleController:
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
 
         if not user:
-            return {'error': '用户未找到'}, 404
+            return format_response(False, error='用户未找到'), 404
 
         # 获取用户的所有角色，确保未被逻辑删除
         roles = []
@@ -31,76 +32,84 @@ class UserRoleController:
             if not role.is_deleted:
                 roles.append(role.to_dict())
 
-        return {"roles": roles}, 200
-
+        return format_response(True, {"roles": roles}), 200
 
     @staticmethod
-    def add_role_to_user(user_id, role_id):
+    def add_roles_to_user(user_id, role_ids):
         """为用户添加角色"""
 
-        if not role_id:
-            return {'error': '角色ID不能为空'}, 400
+        if not role_ids:
+            return format_response(False, error='角色ID列表不能为空'), 400
 
-        # 查找现有的用户和角色信息
+        # 查找现有的用户信息
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
-        role = Role.query.filter_by(id=role_id, is_deleted=False).first()
 
         if not user:
-            return {'error': '用户未找到'}, 404
-        if not role:
-            return {'error': '角色不存在'}, 404
+            return format_response(False, error='用户不存在'), 404
 
-        # 检查是否已经关联
-        existing_relation = UserRole.query.filter_by(user_id=user.id, role_id=role.id, is_deleted=False).first()
+        # 获取所有新的角色
+        roles = Role.query.filter(Role.id.in_(role_ids), Role.is_deleted == False).all()
 
-        if existing_relation:
-            return {'error': '该用户已关联此角色'}, 400
+        if not roles:
+            return format_response(False, error='角色不存在或无效'), 404
 
-        # 添加新的用户-角色关联
-        new_relation = UserRole(user_id=user.id, role_id=role.id)
+        # 遍历每个角色，确保角色未与该用户关联
+        for role in roles:
+            existing_relation = UserRole.query.filter_by(user_id=user.id, role_id=role.id,
+                                                         is_deleted=False).first()
+
+            if existing_relation:
+                continue  # 角色已经关联，跳过
+
+            # 创建新的用户-角色关联
+            new_user_role = UserRole(user_id=user.id, role_id=role.id)
+            db.session.add(new_user_role)
 
         # 提交数据库更新
         try:
-            db.session.add(new_relation)
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
-        return {'message': '用户已成功添加到此角色'}, 200
-
+        return format_response(True, {'message': '角色已成功添加到用户'}), 200
 
     @staticmethod
-    def remove_role_from_user(user_id, role_id):
+    def remove_roles_from_user(user_id, role_ids):
         """从用户中移除角色"""
 
-        if not role_id:
-            return {'error': '角色ID不能为空'}, 400
+        if not role_ids:
+            return format_response(False, error='角色ID列表不能为空'), 400
 
-        # 查找现有的用户和角色信息
+        # 查找现有的用户信息
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
-        role = Role.query.filter_by(id=role_id, is_deleted=False).first()
 
         if not user:
-            return {'error': '用户未找到'}, 404
-        if not role:
-            return {'error': '角色不存在'}, 404
+            return format_response(False, error='用户不存在'), 404
 
-        # 查找现有的关联记录
-        relation = UserRole.query.filter_by(user_id=user.id, role_id=role.id, is_deleted=False).first()
+        # 查找现有的角色信息
+        roles = Role.query.filter(Role.id.in_(role_ids), Role.is_deleted == False).all()
 
-        if not relation:
-            return {'error': '用户未关联此角色'}, 404
+        if not roles:
+            return format_response(False, error='角色不存在或无效'), 404
 
-        # 执行逻辑删除
-        relation.is_deleted = True
-        relation.deleted_at = datetime.now()
+        # 遍历每个角色，检查其是否已与该用户关联
+        for role in roles:
+            existing_relation = UserRole.query.filter_by(user_id=user.id, role_id=role.id,
+                                                         is_deleted=False).first()
+
+            if not existing_relation:
+                continue  # 如果没有找到有效的关联关系，跳过
+
+            # 执行逻辑删除操作
+            existing_relation.is_deleted = True
+            existing_relation.deleted_at = datetime.now()
 
         # 提交数据库更新
         try:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
-        return {'message': '用户已成功从角色中移除'}, 200
+        return format_response(True, {'message': '角色已成功从用户中移除'}), 200

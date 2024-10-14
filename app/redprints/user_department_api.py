@@ -4,13 +4,12 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-04
 # 版本: 1.0
-# 描述: 用户部门关联 API 接口
+# 描述: 用户部门关联的 API 接口
 """
 
-
 from flask import Blueprint, jsonify, request
-from app.controllers import UserDepartmentController
 
+from app.controllers import UserDepartmentController
 
 user_department_api = Blueprint('user_department_api', __name__)
 
@@ -36,5 +35,6 @@ def add_department_to_user(user_id):
 def remove_department_from_user(user_id):
     """从用户中移除部门"""
     data = request.get_json()
-    response, status_code = UserDepartmentController.remove_department_from_user(user_id, data.get('department_id', None))
+    response, status_code = UserDepartmentController.remove_department_from_user(user_id,
+                                                                                 data.get('department_id', None))
     return jsonify(response), status_code

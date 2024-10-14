@@ -4,13 +4,12 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-10
 # 版本: 1.0
-# 描述: 用户个人信息 API 接口
+# 描述: 用户个人信息管理的 API 接口
 """
 
-
 from flask import Blueprint, jsonify, request
-from app.controllers import UserProfileController
 
+from app.controllers import UserProfileController
 
 user_profile_api = Blueprint('user_profile_api', __name__)
 

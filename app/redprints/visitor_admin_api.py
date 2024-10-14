@@ -4,20 +4,19 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-10-04
 # 版本: 1.0
-# 描述: 管理员的访客信息 API 接口
+# 描述: 管理员的访客信息管理的 API 接口
 """
 
-
 from flask import Blueprint, jsonify, request
-from app.controllers import VisitorAdminController
 
+from app.controllers import VisitorAdminController
 
 visitor_admin_api = Blueprint('visitor_admin_api', __name__)
 
 
 @visitor_admin_api.route('/', methods=['GET'])
 def get_visitors():
-    """获取所有访客信息的 API 接口"""
+    """根据用户ID获取指定用户的所有访客信息的 API 接口"""
     page = int(request.args.get('page', 1))  # 默认为第1页
     per_page = int(request.args.get('per_page', 10))  # 每页默认显示10条
     response, status_code = VisitorAdminController.get_all_visitors(page, per_page)

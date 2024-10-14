@@ -4,7 +4,7 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-09-29
 # 版本: 1.0
-# 描述: 用户角色关联模型文件。
+# 描述: 用户角色关联的模型文件。
 """
 
 from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey

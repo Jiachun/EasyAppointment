@@ -49,7 +49,7 @@ class UserController:
         """创建用户信息"""
 
         # 校验用户名是否存在并有效
-        if 'username' not in data or not data['username'].strip():
+        if 'username' not in data or not data['username']:
             return format_response(False, error='用户名不能为空'), 400
         if not validate_username(data['username'].strip()):
             return format_response(False, error='用户名格式有误'), 400
@@ -57,11 +57,11 @@ class UserController:
             return format_response(False, error='用户名已存在'), 400
 
         # 校验密码是否有效
-        if 'password_hash' not in data or not data['password_hash'].strip():
+        if 'password_hash' not in data or not data['password_hash']:
             return format_response(False, error='密码不能为空'), 400
 
         # 校验手机号码是否存在并有效
-        if 'phone_number' not in data or not data['phone_number'].strip():
+        if 'phone_number' not in data or not data['phone_number']:
             return format_response(False, error='手机号码不能为空'), 400
         if not validate_phone_number(data['phone_number'].strip()):
             return format_response(False, error='手机号码格式有误'), 400
@@ -69,25 +69,25 @@ class UserController:
             return format_response(False, error='手机号码已存在'), 400
 
         # 校验姓名格式是否正确
-        if 'name' not in data or not data['name'].strip():
+        if 'name' not in data or not data['name']:
             return format_response(False, error='姓名不能为空'), 400
         if not validate_name(data['name'].strip()):
             return format_response(False, error='姓名格式有误'), 400
 
         # 校验性别是否正确
-        if 'gender' not in data or not data['gender'].strip():
+        if 'gender' not in data or not data['gender']:
             return format_response(False, error='性别不能为空'), 400
         if validate_gender(data['gender'].strip()):
             return format_response(False, error='性别格式有误'), 400
 
         # 校验证件类型是否正确
-        if 'id_type' not in data or not data['id_type'].strip():
+        if 'id_type' not in data or not data['id_type']:
             return format_response(False, error='证件类型不能为空'), 400
         if not validate_id_type(data['id_type'].strip()):
             return format_response(False, error='证件类型有误'), 400
 
         # 校验证件号码是否合法
-        if 'id_number' not in data or not data['id_number'].strip():
+        if 'id_number' not in data or not data['id_number']:
             return format_response(False, error='证件号码不能为空'), 400
         if not validate_id_number(data['id_type'].strip(), data['id_number'].strip()):
             return format_response(False, error='证件号码不合法'), 400
@@ -125,7 +125,7 @@ class UserController:
             return format_response(False, error='用户未找到'), 404
 
         # 校验用户名是否存在并有效
-        if 'username' not in data or not data['username'].strip():
+        if 'username' not in data or not data['username']:
             return format_response(False, error='用户名不能为空'), 400
         if not validate_username(data['username'].strip()):
             return format_response(False, error='用户名格式有误'), 400
@@ -134,7 +134,7 @@ class UserController:
             return format_response(False, error='用户名已存在'), 400
 
         # 校验手机号码是否存在并有效
-        if 'phone_number' not in data or not data['phone_number'].strip():
+        if 'phone_number' not in data or not data['phone_number']:
             return format_response(False, error='手机号码不能为空'), 400
         if not validate_phone_number(data['phone_number'].strip()):
             return format_response(False, error='手机号码格式有误'), 400
@@ -143,25 +143,25 @@ class UserController:
             return format_response(False, error='手机号码已存在'), 400
 
         # 校验姓名格式是否正确
-        if 'name' not in data or not data['name'].strip():
+        if 'name' not in data or not data['name']:
             return format_response(False, error='姓名不能为空'), 400
         if not validate_name(data['name'].strip()):
             return format_response(False, error='姓名格式有误'), 400
 
         # 校验性别格式是否正确
-        if 'gender' not in data or not data['gender'].strip():
+        if 'gender' not in data or not data['gender']:
             return format_response(False, error='性别不能为空'), 400
         if not validate_gender(data['gender'].strip()):
             return format_response(False, error='性别格式有误'), 400
 
         # 校验证件类型是否正确
-        if 'id_type' not in data or not data['id_type'].strip():
+        if 'id_type' not in data or not data['id_type']:
             return format_response(False, error='证件类型不能为空'), 400
         if not validate_id_type(data['id_type'].strip()):
             return format_response(False, error='证件类型有误'), 400
 
         # 校验证件号码是否合法
-        if 'id_number' not in data or not data['id_number'].strip():
+        if 'id_number' not in data or not data['id_number']:
             return format_response(False, error='证件号码不能为空'), 400
         if not validate_id_number(data['id_type'].strip(), data['id_number'].strip()):
             return format_response(False, error='证件号码不合法'), 400

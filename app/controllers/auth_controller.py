@@ -7,15 +7,17 @@
 # 描述: 认证与授权逻辑控制器
 """
 
+from datetime import datetime, timedelta
 
+import jwt
 import requests
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timedelta
+
 from app.config import Config
 from app.models import User, VisitorLog
 from extensions.db import redis_client, db
+from utils.format_utils import format_response
 from utils.random_utils import generate_random_string
-import jwt
 
 
 class AuthController:
@@ -25,11 +27,11 @@ class AuthController:
 
         # 校验用户名是否有效
         if 'username' not in data or not data['username']:
-            return {'error': '请输入用户名'}, 400
+            return format_response(False, error='请输入用户名'), 400
 
         # 校验密码是否有效
         if 'password' not in data or not data['password']:
-            return {'error': '请输入密码'}, 400
+            return format_response(False, error='请输入密码'), 400
 
         username = data['username']
         password = data['password']
@@ -37,7 +39,7 @@ class AuthController:
         # 检查用户是否被锁定
         lock_key = f"lock_{username}"
         if redis_client.get(lock_key):
-            return {'error': '账户已锁定，请稍后再试'}, 403
+            return format_response(False, error='账户已锁定，请稍后再试'), 403
 
         # 查找现有的用户信息
         user = User.query.filter_by(username=username, is_deleted=False).first()
@@ -49,7 +51,7 @@ class AuthController:
 
             # 检测用户激活状态
             if not user.is_active:
-                return {'error': '用户已处于停用状态'}, 400
+                return format_response(False, error='用户已处于停用状态'), 400
 
             # 生成 token
             now = datetime.now()
@@ -64,7 +66,7 @@ class AuthController:
 
             # 将 Token 存入 Redis
             redis_client.set(user.id, token, ex=Config.TOKEN_EXPIRY)
-            return {'token': token}, 200
+            return format_response(True, {'token': token}), 200
 
         # 登录失败，记录失败次数
         attempts_key = f"login_attempts_{username}"
@@ -75,14 +77,13 @@ class AuthController:
             if attempts + 1 >= Config.MAX_LOGIN_ATTEMPTS:
                 # 锁定账户
                 redis_client.set(lock_key, "locked", ex=Config.LOCK_TIME)
-                return {'error': '账户已锁定，请稍后再试'}, 403
+                return format_response(False, error='账户已锁定，请稍后再试'), 403
             else:
                 redis_client.incr(attempts_key)
         else:
             redis_client.set(attempts_key, 1, ex=Config.LOCK_TIME)
 
-        return {'error': '用户名或密码错误'}, 401
-
+        return format_response(False, error='用户名或密码错误'), 401
 
     @staticmethod
     def logout(user):
@@ -90,23 +91,23 @@ class AuthController:
         try:
             # 从 Redis 中删除用户的 Token
             redis_client.delete(user.id)
-            return {'message': '注销成功'}, 200
+            return format_response(True, {'message': '注销成功'}), 200
         except Exception as e:
-            return {'error': f'注销失败: {str(e)}'}, 500
+            return format_response(False, error=f'注销失败: {str(e)}'), 500
 
     @staticmethod
     def change_password(user, data):
         """用户修改密码"""
         # 校验新旧密码
         if 'old_password' not in data or 'new_password' not in data:
-            return {'error': '请提供旧密码和新密码'}, 400
+            return format_response(False, error='请提供旧密码和新密码'), 400
 
         old_password = data['old_password']
         new_password = data['new_password']
 
         # 校验旧密码是否正确
         if not check_password_hash(user.password_hash, old_password):
-            return {'error': '旧密码不正确'}, 400
+            return format_response(False, error='旧密码不正确'), 400
 
         # 更新新密码
         user.password_hash = generate_password_hash(new_password)
@@ -116,13 +117,12 @@ class AuthController:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
         # 清除用户的 Token（要求重新登录）
         redis_client.delete(user.id)
 
-        return {'message': '密码修改成功，请重新登录'}, 200
-
+        return format_response(False, error='密码修改成功，请重新登录'), 200
 
     @staticmethod
     def set_password(data):
@@ -134,12 +134,12 @@ class AuthController:
 
         # 校验传入的数据是否完整
         if not user_id or not new_password:
-            return {'error': '用户ID和新密码不能为空'}, 400
+            return format_response(False, error='用户ID和新密码不能为空'), 400
 
         # 查找目标用户
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
         if not user:
-            return {'error': '用户不存在'}, 403
+            return format_response(False, error='用户不存在'), 403
 
         # 设置新密码
         user.password_hash = generate_password_hash(new_password)
@@ -149,13 +149,12 @@ class AuthController:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
         # 清除用户的 Token（要求重新登录）
         redis_client.delete(user.id)
 
-        return {'message': '密码已成功更新'}, 200
-
+        return format_response(True, {'message': '密码已成功更新'}), 200
 
     @staticmethod
     def wechat_login(data):
@@ -163,7 +162,7 @@ class AuthController:
 
         # 获取code
         if 'code' not in data or not data['code']:
-            return {'error': '缺少 code 参数'}, 400
+            return format_response(False, error='缺少 code 参数'), 400
 
         code = data['code']
 
@@ -177,7 +176,7 @@ class AuthController:
         data = response.json()
 
         if 'openid' not in data or not data['openid']:
-            return {'error': '无法获取 openid'}, 400
+            return format_response(False, error='无法获取 openid'), 400
 
         openid = data['openid']
 
@@ -186,11 +185,11 @@ class AuthController:
 
         if not user:
             # 如果用户不存在
-            return {'error': '用户尚未绑定'}, 403
+            return format_response(False, error='用户尚未绑定'), 403
 
         # 检测用户激活状态
         if not user.is_active:
-            return {'error': '用户已处于停用状态'}, 400
+            return format_response(False, error='用户已处于停用状态'), 400
 
         # 生成 token
         now = datetime.now()
@@ -206,8 +205,7 @@ class AuthController:
         # 将 Token 存入 Redis
         redis_client.set(user.id, token, ex=Config.TOKEN_EXPIRY)
 
-        return {'token': token}, 200
-
+        return format_response(True, {'token': token}), 200
 
     @staticmethod
     def bind_user(data):
@@ -215,11 +213,11 @@ class AuthController:
 
         # 验证用户的手机号是否正确
         if 'phone_number' not in data or not data['phone_number']:
-            return {'error': '手机号码不能为空'}, 400
+            return format_response(False, error='手机号码不能为空'), 400
 
         # 获取code
         if 'code' not in data or not data['code']:
-            return {'error': '缺少 code 参数'}, 400
+            return format_response(False, error='缺少 code 参数'), 400
 
         code = data['code']
 
@@ -233,7 +231,7 @@ class AuthController:
         data = response.json()
 
         if 'openid' not in data or not data['openid']:
-            return {'error': '无法获取 openid'}, 400
+            return format_response(False, error='无法获取 openid'), 400
 
         openid = data['openid']
 
@@ -244,7 +242,7 @@ class AuthController:
             if user:
                 # 检测用户激活状态
                 if not user.is_active:
-                    return {'error': '用户已处于停用状态'}, 400
+                    return format_response(False, error='用户已处于停用状态'), 400
 
                 # 如果用户存在，绑定openid
                 user.openid = openid
@@ -260,7 +258,7 @@ class AuthController:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
         # 生成 token
         now = datetime.now()
@@ -276,8 +274,7 @@ class AuthController:
         # 将 Token 存入 Redis
         redis_client.set(user.id, token, ex=Config.TOKEN_EXPIRY)
 
-        return {'token': token}, 200
-
+        return format_response(True, {'token': token}), 200
 
     @staticmethod
     def unbind_user(data):
@@ -285,13 +282,13 @@ class AuthController:
 
         # 校验 openid 是否为空
         if 'openid' not in data or not data['openid']:
-            return {'error': '缺少 openid 参数'}, 400
+            return format_response(False, error='缺少 openid 参数'), 400
 
         # 查找用户并解绑
         user = User.query.filter_by(openid=data['openid'], is_deleted=False).first()
 
         if not user:
-            return {'error': '用户不存在'}, 400
+            return format_response(False, error='用户不存在'), 400
 
         # 清除 openid
         user.openid = None
@@ -301,13 +298,12 @@ class AuthController:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
         # 清除用户的 Token（要求重新登录）
         redis_client.delete(user.id)
 
-        return {'message': '用户解绑成功'}, 200
-
+        return format_response(True, {'message': '用户解绑成功'}), 200
 
     @staticmethod
     def unregister(user, data):
@@ -329,13 +325,12 @@ class AuthController:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
         # 从 Redis 中删除用户的 Token
         redis_client.delete(user.id)
 
-        return {'message': '用户删除成功'}, 200
-
+        return format_response(True, {'message': '用户删除成功'}), 200
 
     @staticmethod
     def activate_user(data):
@@ -345,13 +340,13 @@ class AuthController:
         user_id = data.get('user_id')
 
         if not user_id:
-            return {'error': '缺少用户ID'}, 400
+            return format_response(False, error='缺少用户ID'), 400
 
         # 查找用户
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
 
         if not user:
-            return {'error': '用户不存在'}, 404
+            return format_response(False, error='用户不存在'), 404
 
         # 激活用户
         user.is_active = True
@@ -361,10 +356,9 @@ class AuthController:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
-        return {'message': '用户账户已激活'}, 200
-
+        return format_response(True, {'message': '用户账户已激活'}), 200
 
     @staticmethod
     def deactivate_user(data):
@@ -374,16 +368,16 @@ class AuthController:
         user_id = data.get('user_id')
 
         if not user_id:
-            return {'error': '缺少用户ID'}, 400
+            return format_response(False, error='缺少用户ID'), 400
 
         # 查找目标用户
         user = User.query.filter_by(id=user_id, is_deleted=False).first()
 
         if not user:
-            return {'error': '用户不存在'}, 404
+            return format_response(False, error='用户不存在'), 404
 
         if not user.is_active:
-            return {'error': '用户已处于停用状态'}, 400
+            return format_response(False, error='用户已处于停用状态'), 400
 
         # 停用用户
         user.is_active = False
@@ -393,8 +387,8 @@ class AuthController:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return {'error': '数据库更新失败: {}'.format(str(e))}, 500
+            return format_response(False, error=f'数据库更新失败: {str(e)}'), 500
 
         redis_client.delete(user.id)
 
-        return {'message': '用户已成功停用'}, 200
+        return format_response(True, {'message': '用户已成功停用'}), 200

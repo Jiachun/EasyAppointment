@@ -48,7 +48,7 @@ class CampusController:
         """创建校区信息"""
 
         # 校验校区名称是否存在并有效
-        if 'name' not in data or not data['name'].strip() or len(data['name'].strip()) < 3:
+        if 'name' not in data or not data['name'] or len(data['name'].strip()) < 3:
             return format_response(False, error='校区名称不能为空且至少为3个字符'), 400
         if not validate_campus_name(data['name'].strip()):
             return format_response(False, error='校区名称只能包含中文字符、字母、数字和空格'), 400
@@ -76,7 +76,7 @@ class CampusController:
         """更新校区信息"""
 
         # 校验校区名称是否有效
-        if 'name' not in data or not data['name'].strip() or len(data['name'].strip()) < 3:
+        if 'name' not in data or not data['name'] or len(data['name'].strip()) < 3:
             return format_response(False, error='校区名称不能为空且至少为3个字符'), 400
         if not validate_campus_name(data['name'].strip()):
             return format_response(False, error='校区名称只能包含中文字符、字母、数字和空格'), 400

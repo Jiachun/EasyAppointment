@@ -4,14 +4,16 @@
 # 作者: 罗嘉淳
 # 创建日期: 2024-09-27
 # 版本: 1.0
-# 描述: 实现了数据的对称和非对称加密解密功能。
+# 描述: 实现了数据的加密解密功能。
 """
 import base64
 import os
-from Crypto.PublicKey import RSA
+
 from Crypto.Cipher import PKCS1_OAEP, AES
+from Crypto.PublicKey import RSA
 from Crypto.PublicKey.RSA import RsaKey
 from Crypto.Random import get_random_bytes
+
 from app.config import Config
 
 
@@ -123,6 +125,7 @@ def rsa_decrypt_str_to_str(private_key: RsaKey, encrypted_data: str) -> str:
     encrypted_data_bytes = base64.b64decode(encrypted_data.encode('utf-8'))  # base64 解码为字节数据
     decrypted_data = cipher.decrypt(encrypted_data_bytes)  # 解密为字节数据
     return decrypted_data.decode('utf-8')  # 解码为字符串
+
 
 def rsa_encrypt_aes_key(aes_key):
     """加载 RSA 公钥对 AES 密钥进行加密"""
