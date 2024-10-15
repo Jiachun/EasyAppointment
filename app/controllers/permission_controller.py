@@ -52,8 +52,13 @@ class PermissionController:
         if Permission.query.filter_by(name=data['name'].strip(), is_deleted=False).first():
             return format_response(False, error='权限名称已存在'), 400
 
+        # 校验权限类型是否有效
+        if 'type' not in data or not data['type'] or len(data['type'].strip()) < 2:
+            return format_response(False, error='权限类型不能为空且至少为2个字符'), 400
+
         permission = Permission(
             name=data['name'].strip(),
+            type=data['type'].strip(),
             description=data.get('description') or '',
             is_deleted=False,
         )
@@ -79,6 +84,10 @@ class PermissionController:
                                    Permission.is_deleted == False).first():
             return format_response(False, error='权限名称已存在'), 400
 
+        # 校验权限类型是否有效
+        if 'type' not in data or not data['type'] or len(data['type'].strip()) < 2:
+            return format_response(False, error='权限类型不能为空且至少为2个字符'), 400
+
         # 查找现有的权限信息
         permission = Permission.query.filter_by(id=permission_id, is_deleted=False).first()
         if not permission:
@@ -87,6 +96,8 @@ class PermissionController:
         # 更新权限信息
         if 'name' in data:
             permission.name = data['name'].strip()
+        if 'type' in data:
+            permission.type = data['type'].strip()
         if 'description' in data:
             permission.description = data.get('description') or '',
 
@@ -143,9 +154,13 @@ class PermissionController:
         # 创建查询对象
         query = Permission.query.filter(Permission.is_deleted == False)
 
-        # 如果有角色名称的条件
+        # 如果有权限名称的条件
         if filters.get('name'):
             query = query.filter(Permission.name.contains(filters['name']))
+
+        # 如果有权限类型的条件
+        if filters.get('type'):
+            query = query.filter(Permission.type.contains(filters['type']))
 
         # 动态排序，确保sort_field是数据库表中的有效字段
         if sort_order.lower() == 'asc':

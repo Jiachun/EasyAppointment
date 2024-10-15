@@ -113,6 +113,7 @@ class User(db.Model):
                     return True
         return False
 
+
     def get_departments(self):
         """获取用户所属的所有部门"""
         # 遍历用户的所有有效的部门关联记录，返回部门名称列表

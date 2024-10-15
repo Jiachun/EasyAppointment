@@ -14,7 +14,7 @@ import requests
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.config import Config
-from app.models import User, VisitorLog
+from app.models import User, VisitorLog, Permission, RolePermission
 from extensions.db import redis_client, db
 from utils.format_utils import format_response
 from utils.random_utils import generate_random_string
@@ -94,6 +94,31 @@ class AuthController:
             return format_response(True, {'message': '注销成功'}), 200
         except Exception as e:
             return format_response(False, error=f'注销失败: {str(e)}'), 500
+
+    @staticmethod
+    def get_permissions(user, data):
+        """获取用户权限列表"""
+        # 校验权限类型是否为空
+        if 'permission_type' not in data or not data['permission_type']:
+            return format_response(False, error='缺少 permission_type 参数'), 400
+
+        permission_type = data['permission_type']
+
+        roles = [user_role.role_id for user_role in user.user_roles.filter_by(is_deleted=False)]
+
+        if not roles:
+            return format_response(False, error='该用户没有关联任何角色'), 404
+
+        # 查找这些角色的权限
+        permissions = (db.session.query(Permission)
+                       .join(RolePermission, RolePermission.permission_id == Permission.id)
+                       .filter(RolePermission.role_id.in_(roles),
+                               Permission.type == permission_type,
+                               Permission.is_deleted == False)
+                       .all())
+
+        # 转换为字典列表返回
+        return format_response(True, {'permissions': [permission.name for permission in permissions]}), 200
 
     @staticmethod
     def change_password(user, data):

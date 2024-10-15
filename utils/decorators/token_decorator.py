@@ -7,14 +7,16 @@
 # 描述: Token 验证装饰器。
 """
 
-
-from functools import wraps
-from flask import jsonify, request
 from datetime import datetime, timedelta
-from extensions.db import redis_client
+from functools import wraps
+
+import jwt
+from flask import jsonify, request
+
 from app.config import Config
 from app.models import User
-import jwt
+from extensions.db import redis_client
+from utils.format_utils import format_response
 
 
 def token_required(f):
@@ -27,7 +29,7 @@ def token_required(f):
 
         if not token:
             # 如果请求头中没有 Token，返回 403 错误
-            return jsonify({'error': 'Token 丢失'}), 403
+            return jsonify(format_response(False, error='Token 丢失')), 403
 
         try:
             # 解码 Token，验证其有效性
@@ -36,13 +38,13 @@ def token_required(f):
 
             if not current_user:
                 # 如果没有找到对应的用户，返回 403 错误
-                return jsonify({'error': '用户不存在'}), 403
+                return jsonify(format_response(False, error='用户不存在')), 403
 
             # 从 Redis 获取当前用户的 Token，并与请求中的 Token 对比
             stored_token = redis_client.get(current_user.id)
             if stored_token != token:
                 # 如果 Redis 中存储的 Token 与请求中的 Token 不一致，返回 403 错误
-                return jsonify({'error': 'Token 已失效'}), 403
+                return jsonify(format_response(False, error='Token 已失效')), 403
 
             # 获取当前时间和刷新时间
             now = datetime.now()
@@ -64,9 +66,9 @@ def token_required(f):
 
         # 捕获 Token 过期异常
         except jwt.ExpiredSignatureError:
-            return jsonify({'error': 'Token 已过期'}), 403
+            return jsonify(format_response(False, error='Token 已过期')), 403
         except jwt.InvalidTokenError:
-            return jsonify({'error': '无效的 Token'}), 403
+            return jsonify(format_response(False, error='无效的 Token')), 403
 
         # 如果 Token 验证通过，调用被装饰的函数
         return f(current_user, *args, **kwargs)

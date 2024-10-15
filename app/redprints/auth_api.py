@@ -31,6 +31,15 @@ def logout(current_user):
     return jsonify(response), status_code
 
 
+@auth_api.route('/permissions', methods=['POST'])
+@token_required
+def get_permissions(current_user):
+    """获取用户权限列表的 API 接口"""
+    data = request.json
+    response, status_code = AuthController.get_permissions(current_user, data)
+    return jsonify(response), status_code
+
+
 @auth_api.route('/change_password', methods=['POST'])
 @token_required
 def change_password(current_user):
@@ -51,6 +60,7 @@ def set_password():
 
 @auth_api.route('/register', methods=['POST'])
 def wechat_login():
+    """微信小程序登录的 API 接口"""
     data = request.json
     response, status_code = AuthController.wechat_login(data)
     return jsonify(response), status_code
@@ -58,6 +68,7 @@ def wechat_login():
 
 @auth_api.route('/bind', methods=['POST'])
 def bind_user():
+    """微信小程序绑定用户的 API 接口"""
     data = request.json
     response, status_code = AuthController.bind_user(data)
     return jsonify(response), status_code

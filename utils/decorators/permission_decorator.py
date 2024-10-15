@@ -7,9 +7,11 @@
 # 描述: 权限验证装饰器。
 """
 
-
 from functools import wraps
+
 from flask import jsonify
+
+from utils.format_utils import format_response
 
 
 def permission_required(required_permission):
@@ -20,10 +22,11 @@ def permission_required(required_permission):
         def wrapper(current_user, *args, **kwargs):
             # 检查当前用户是否拥有所需的权限
             if not current_user.has_permission(required_permission):
-                return jsonify({'error': '权限不足，无法访问该资源'}), 403
+                return jsonify(format_response(False, error='权限不足，无法访问该资源')), 403
 
             # 如果权限验证通过，继续执行被装饰的函数
             return f(current_user, *args, **kwargs)
 
         return wrapper
+
     return decorator

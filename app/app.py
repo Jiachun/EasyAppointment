@@ -3,7 +3,6 @@ import os
 from flask import Flask
 from flask_cors import CORS
 
-from app.blueprints import register_blueprints
 from app.config import DevelopmentConfig, ProductionConfig
 from app.redprints import register_redprints
 from extensions.db import init_db, init_redis
