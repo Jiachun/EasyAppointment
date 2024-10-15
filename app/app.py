@@ -28,8 +28,7 @@ def create_app():
     # 初始化 Redis
     init_redis(app)
 
-    # 注册蓝图和红图
+    # 注册红图
     register_redprints(app)
-    register_blueprints(app)
 
     return app
