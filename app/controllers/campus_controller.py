@@ -23,14 +23,16 @@ class CampusController:
     def get_all_campuses(page=1, per_page=10):
         """获取所有校区信息"""
 
+        # 创建查询对象
+        query = Campus.query.filter_by(is_deleted=False)
+
         # 分页
-        paginated_campuses = Campus.query.filter_by(is_deleted=False).paginate(page=page, per_page=per_page,
-                                                                               error_out=False)
+        paginated_campuses = query.paginate(page=page, per_page=per_page, error_out=False)
 
         # 返回分页后的数据、总页数、当前页和每页记录数
         return format_response(True, {
             "campuses": [campus.to_dict() for campus in paginated_campuses.items],
-            "total": paginated_campuses.count(),
+            "total": query.count(),
             "total_pages": paginated_campuses.pages,
             "current_page": page,
             "per_page": per_page
@@ -164,7 +166,7 @@ class CampusController:
         # 返回分页后的数据、总页数、当前页和每页记录数
         return format_response(True, {
             "campuses": [campus.to_dict() for campus in paginated_campuses.items],
-            "total": paginated_campuses.count(),
+            "total": query.count(),
             "total_pages": paginated_campuses.pages,
             "current_page": page,
             "per_page": per_page
